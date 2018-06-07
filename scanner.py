@@ -2,13 +2,12 @@ from abc import ABCMeta, abstractmethod
 import logging
 import os.path
 import subprocess
+import sys
 
 from overrides import overrides
 
 import pycparser
 from pycparser import parse_file
-
-import sys
 
 GCC_PATH = 'gcc'
 LOGGER = logging.getLogger(__name__)

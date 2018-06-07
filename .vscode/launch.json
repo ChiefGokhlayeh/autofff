@@ -10,6 +10,7 @@
                 "examples/example.h",
                 "-i examples",
                 "-f dependencies/pycparser/utils/fake_libc_include",
+                "-o output/example_th.h"
             ]
         },
         {

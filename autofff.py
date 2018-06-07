@@ -4,6 +4,7 @@ import os.path
 import sys
 
 import scanner
+import generator
 
 if __name__ == "__main__":
 	logging.basicConfig(level=logging.DEBUG)
@@ -15,6 +16,7 @@ if __name__ == "__main__":
 	parser.add_argument('-i', '--includes', type=str, help="Additional directory to be included for compilation. These are passed down as '-I' includes to the compiler.", required=False, action='append')
 	parser.add_argument('-f', '--fakes', type=str, help="Path of the fake libc and additional include directories that you would like to include before the normal '-I' includes.", required=True, action='append')
 	parser.add_argument('-d', '--defines', type=str, help="Define/macro to be passed to the preprocessor.", required=False, action='append')
+	parser.add_argument('-o', '--output', type=str, help="Output file for the generated fake header", required=True)
 
 	args = parser.parse_args()
 
@@ -29,3 +31,12 @@ if __name__ == "__main__":
 	scanner.scan_included_headers()
 	functions = scanner.scan_function_declarations()
 	logger.info(f"Function declarations found: {', '.join( [ f.name for f in functions ])}")
+
+	generator = generator.SimpleFakeGenerator(os.path.splitext(os.path.basename(args.output))[0], args.header)
+
+	outputFile = args.output.strip()
+	if not os.path.exists(os.path.dirname(outputFile)):
+		os.makedirs(os.path.dirname(outputFile))
+
+	with open(outputFile, "w") as fs:
+		generator.generate(functions, fs)
