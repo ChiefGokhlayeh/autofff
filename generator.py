@@ -39,7 +39,7 @@ class SimpleFakeGenerator(FakeGenerator):
 			incGuard = '_' + incGuard
 
 		incGuard = f"{re.sub('([^A-Z0-9_]*)', '', incGuard)}_H_"
-		LOGGER.info(f"Generated include guard macro: '{incGuard}'.")
+		LOGGER.debug(f"Generated include guard macro: '{incGuard}'.")
 		incGuardBeginning = [
 			f'#ifndef {incGuard}\n',
 			f'#define {incGuard}\n\n',
@@ -61,6 +61,7 @@ class SimpleFakeGenerator(FakeGenerator):
 			params = filter(lambda param: param.type.type.names[0] != 'void', decl.type.args.params)
 			for param in params:
 				fake += f', {param.type.type.names[0]}'
+			LOGGER.debug(f"Creating fake {fake});...")
 			fake += ');\n'
 			output.write(fake)
 

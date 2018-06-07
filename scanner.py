@@ -52,12 +52,12 @@ class Scanner(metaclass=ABCMeta):
 	def scan_function_declarations(self):
 		includedFunctions = {}
 		for includedHeader in self.includedHeaders.values():
-			LOGGER.info(f"Looking for included function declarations in {includedHeader}")
+			LOGGER.info(f"Looking for included function declarations in {includedHeader}...")
 			includedFunctions = {**self._mine_function_declarations(includedHeader, includedFunctions), **includedFunctions }
 			if len(includedFunctions) > 0:
-				LOGGER.info(f"Included function declarations in {os.path.basename(includedHeader)}: {', '.join(includedFunctions)}")
+				LOGGER.info(f"Found '{len(includedFunctions)}' included function declarations in {os.path.basename(includedHeader)}: {', '.join(includedFunctions)}.")
 			else:
-				LOGGER.info(f"No included function declarations found")
+				LOGGER.info(f"No included function declarations found.")
 		return self._mine_function_declarations(self.targetHeader, includedFunctions).values()
 
 	@abstractmethod
