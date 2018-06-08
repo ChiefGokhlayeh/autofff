@@ -56,8 +56,9 @@ if __name__ == "__main__":
 	scanner = scanner.GCCScanner(targetHeader=args.header, fakes=args.fakes, includes=args.includes, defines=args.defines)
 
 	scanner.scan_included_headers()
-	functions = scanner.scan_function_declarations()
-	logger.info(f"Function declarations found: {', '.join( [ f.name for f in functions ])}.")
+	result = scanner.scan_function_declarations()
+	logger.info(f"Function declarations found: {', '.join( [ f.name for f in result.declarations ])}.")
+	logger.info(f"Function definitions found: {', '.join( [ f.decl.name for f in result.definitions ])}.")
 
 	generator = generator.SimpleFakeGenerator(os.path.splitext(os.path.basename(args.output))[0], args.header)
 
@@ -69,6 +70,6 @@ if __name__ == "__main__":
 
 	logger.info(f"Generatring output file {outputFile}...")
 	with open(outputFile, "w") as fs:
-		generator.generate(functions, fs)
+		generator.generate(result, fs)
 
 	logger.info(f"Generation complete!")

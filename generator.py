@@ -1,3 +1,5 @@
+import scanner
+
 from abc import ABC, abstractmethod
 import io
 import logging
@@ -20,7 +22,7 @@ class FakeGenerator(ABC):
 		self.fakeName = fakeName
 
 	@abstractmethod
-	def generate(self, declarations:list, output:io.IOBase):
+	def generate(self, result:scanner.ScannerResult, output:io.IOBase):
 		pass
 
 class TemplatedFakeGenerator(FakeGenerator):
@@ -32,8 +34,29 @@ class SimpleFakeGenerator(FakeGenerator):
 		self.originalHeader = originalHeader
 		self.generateIncludeGuard = generateIncludeGuard
 
+	def _generateBypassForFuncDef(self, funcDef:pycparser.c_ast.FuncDef):
+		funcName = funcDef.decl.name
+		bypass = f"#define {funcName} {funcName}_fff\n"
+		bypass += f"#define {funcName}_fake {funcName}_fff_fake\n"
+		bypass += f"#define {funcName}_reset {funcName}_fff_reset\n"
+		return bypass
+
+	def _generateFakeForDecl(self, decl:pycparser.c_ast.Decl):
+		funcName = decl.name
+		returnType = decl.type.type.type.names[0]
+		if returnType == 'void':
+			fake = f'FAKE_VOID_FUNC({funcName}'
+		else:
+			fake = f'FAKE_VALUE_FUNC({returnType}, {funcName}'
+		params = filter(lambda param: param.type.type.names[0] != 'void', decl.type.args.params)
+		for param in params:
+			fake += f', {param.type.type.names[0]}'
+		LOGGER.debug(f"Creating fake {fake});...")
+		fake += ');\n'
+		return fake
+
 	@overrides
-	def generate(self, declarations:list, output:io.IOBase):
+	def generate(self, result:scanner.ScannerResult, output:io.IOBase):
 		incGuard = os.path.splitext(os.path.basename(self.fakeName.upper()))[0]
 		if incGuard[0].isdigit():
 			incGuard = '_' + incGuard
@@ -51,18 +74,12 @@ class SimpleFakeGenerator(FakeGenerator):
 		]
 		output.writelines(incGuardBeginning)
 
-		for decl in declarations:
-			funcName = decl.name
-			returnType = decl.type.type.type.names[0]
-			if returnType == 'void':
-				fake = f'FAKE_VOID_FUNC({funcName}'
-			else:
-				fake = f'FAKE_VALUE_FUNC({returnType}, {funcName}'
-			params = filter(lambda param: param.type.type.names[0] != 'void', decl.type.args.params)
-			for param in params:
-				fake += f', {param.type.type.names[0]}'
-			LOGGER.debug(f"Creating fake {fake});...")
-			fake += ');\n'
-			output.write(fake)
+		for decl in result.declarations:
+			output.write(self._generateFakeForDecl(decl))
+
+		output.write("\n")
+		for definition in result.definitions:
+			output.write(self._generateBypassForFuncDef(definition))
+			output.write(self._generateFakeForDecl(definition.decl))
 
 		output.writelines(incGuardEnd)

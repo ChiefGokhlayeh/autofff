@@ -39,6 +39,11 @@ class ScannerException(Exception):
 		self.details = details
 		super().__init__(message)
 
+class ScannerResult():
+	def __init__(self, declarations:tuple, definitions:tuple):
+		self.declarations = declarations
+		self.definitions = definitions
+
 class Scanner(metaclass=ABCMeta):
 	@classmethod
 	def __init__(self, targetHeader:str, fakes:str, includes:list=None, defines:list=None):
@@ -50,23 +55,31 @@ class Scanner(metaclass=ABCMeta):
 
 	@classmethod
 	def scan_function_declarations(self):
-		includedFunctions = {}
+		incFuncDecl = {}
+		incFuncDef = {}
 		for includedHeader in self.includedHeaders.values():
 			LOGGER.info(f"Looking for included function declarations in {includedHeader}...")
-			includedFunctions = {**self._mine_function_declarations(includedHeader, includedFunctions), **includedFunctions }
-			if len(includedFunctions) > 0:
-				LOGGER.info(f"Found '{len(includedFunctions)}' included function declarations in {os.path.basename(includedHeader)}: {', '.join(includedFunctions)}.")
+			ast = self._call_parse(includedHeader)
+			incFuncDecl = {**self._mine_function_declarations(ast, incFuncDecl), **incFuncDecl }
+			if len(incFuncDecl) > 0:
+				LOGGER.info(f"Found '{len(incFuncDecl)}' included function declarations in {os.path.basename(includedHeader)}: {', '.join(incFuncDecl)}.")
 			else:
 				LOGGER.info(f"No included function declarations found.")
-		return self._mine_function_declarations(self.targetHeader, includedFunctions).values()
+			incFuncDef = {**self._mine_function_definitions(ast, incFuncDef), **incFuncDef }
+			if len(incFuncDef) > 0:
+				LOGGER.info(f"Found '{len(incFuncDef)}' included function definitions in {os.path.basename(includedHeader)}: {', '.join(incFuncDef)}.")
+			else:
+				LOGGER.info(f"No included function definitions found.")
+
+		ast = self._call_parse(self.targetHeader)
+		return ScannerResult(tuple(self._mine_function_declarations(ast, incFuncDecl).values()), tuple(self._mine_function_definitions(ast, incFuncDef).values()))
 
 	@abstractmethod
 	def scan_included_headers(self):
 		pass
 
 	@classmethod
-	def _mine_function_declarations(self, pathToHeader:str, knownFunctions:dict=dict()):
-		ast = self._call_parse(pathToHeader)
+	def _mine_function_declarations(self, ast:pycparser.c_ast.FileAST, knownFunctions:dict=dict()):
 		foundFunctions = {}
 
 		for elem in ast.ext:
@@ -74,9 +87,29 @@ class Scanner(metaclass=ABCMeta):
 				funcName = elem.name
 				if funcName not in knownFunctions:
 					funcDecl = elem.type
-					foundFunctions[elem.name] = elem
+					foundFunctions[funcName] = elem
 					funcType = funcDecl.type.type.names
 					LOGGER.debug(f"[{len(foundFunctions)}] Function Delaration: {funcName}")
+					LOGGER.debug(f"\tReturn type: {funcType}")
+					paramList = funcDecl.args.params
+					for param in paramList:
+						paramType = param.type.type.names
+						paramName = param.type.declname
+						LOGGER.debug(f"\tParameter: {paramName} of Type: {paramType}")
+		return foundFunctions
+
+	@classmethod
+	def _mine_function_definitions(self, ast:pycparser.c_ast.FileAST, knownFunctions:dict=dict()):
+		foundFunctions = {}
+
+		for elem in ast.ext:
+			if isinstance(elem, pycparser.c_ast.FuncDef):
+				funcName = elem.decl.name
+				if funcName not in knownFunctions:
+					funcDecl = elem.decl.type
+					foundFunctions[funcName] = elem
+					funcType = funcDecl.type.type.names
+					LOGGER.debug(f"[{len(foundFunctions)}] Function Definition: {funcName}")
 					LOGGER.debug(f"\tReturn type: {funcType}")
 					paramList = funcDecl.args.params
 					for param in paramList:
