@@ -34,14 +34,14 @@ class Scanner(metaclass=ABCMeta):
 		self.targetHeader = targetHeader
 		self.fakes = fakes
 		self.includes = includes
-		self.includedHeaders = dict()
 		self.defines = defines
 
 	@classmethod
-	def scan_function_declarations(self):
+	def scan(self):
+		includedHeaders = self._scan_included_headers()
 		incFuncDecl = {}
 		incFuncDef = {}
-		for includedHeader in self.includedHeaders.values():
+		for includedHeader in includedHeaders.values():
 			LOGGER.info(f"Looking for included function declarations in {includedHeader}...")
 			ast = self._call_parse(includedHeader)
 			incFuncDecl = {**self._mine_function_declarations(ast, incFuncDecl), **incFuncDecl }
@@ -59,7 +59,7 @@ class Scanner(metaclass=ABCMeta):
 		return ScannerResult(tuple(self._mine_function_declarations(ast, incFuncDecl).values()), tuple(self._mine_function_definitions(ast, incFuncDef).values()))
 
 	@abstractmethod
-	def scan_included_headers(self):
+	def _scan_included_headers(self):
 		pass
 
 	@classmethod
@@ -111,7 +111,7 @@ class GCCScanner(Scanner):
 
 	@classmethod
 	@overrides
-	def scan_included_headers(self):
+	def _scan_included_headers(self):
 		with subprocess.Popen(
 			[
 				GCC_PATH,
@@ -130,15 +130,16 @@ class GCCScanner(Scanner):
 				LOGGER.exception(ex)
 				raise ex
 		lines = stdout.split(' \\\r\n')
-		self.includedHeaders.clear()
+		includedHeaders = {}
 		paths = lines[0].split(' ')[2:]
-		self.includedHeaders.update(zip([ os.path.basename(x) for x in paths ], paths))
+		includedHeaders.update(zip([ os.path.basename(x) for x in paths ], paths))
 		for line in lines[1:]:
 			paths = [ os.path.normcase(os.path.normpath(pathStr)) for pathStr in line.strip().split(' ') ]
 			for key, val in zip([ os.path.basename(x) for x in paths ], paths):
-				if key not in self.includedHeaders:
-					self.includedHeaders[key] = val
-		LOGGER.debug(f"Included headers: {self.includedHeaders}")
+				if key not in includedHeaders:
+					includedHeaders[key] = val
+		LOGGER.debug(f"Included headers: {includedHeaders}")
+		return includedHeaders
 
 	@classmethod
 	@overrides

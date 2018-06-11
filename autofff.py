@@ -55,8 +55,7 @@ if __name__ == "__main__":
 
 	scanner = scanner.GCCScanner(targetHeader=args.header, fakes=args.fakes, includes=args.includes, defines=args.defines)
 
-	scanner.scan_included_headers()
-	result = scanner.scan_function_declarations()
+	result = scanner.scan()
 	logger.info(f"Function declarations found: {', '.join( [ f.name for f in result.declarations ])}.")
 	logger.info(f"Function definitions found: {', '.join( [ f.decl.name for f in result.definitions ])}.")
 
