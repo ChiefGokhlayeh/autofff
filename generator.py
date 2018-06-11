@@ -1,3 +1,4 @@
+import utils
 import scanner
 
 from abc import ABC, abstractmethod
@@ -43,14 +44,14 @@ class SimpleFakeGenerator(FakeGenerator):
 
 	def _generateFakeForDecl(self, decl:pycparser.c_ast.Decl):
 		funcName = decl.name
-		returnType = decl.type.type.type.names[0]
+		returnType = utils.get_type_name(decl.type)
 		if returnType == 'void':
 			fake = f'FAKE_VOID_FUNC({funcName}'
 		else:
 			fake = f'FAKE_VALUE_FUNC({returnType}, {funcName}'
-		params = filter(lambda param: param.type.type.names[0] != 'void', decl.type.args.params)
+		params = filter(lambda param: utils.get_type_name(param) != 'void', decl.type.args.params)
 		for param in params:
-			fake += f', {param.type.type.names[0]}'
+			fake += f', {utils.get_type_name(param)}'
 		LOGGER.debug(f"Creating fake {fake});...")
 		fake += ');\n'
 		return fake

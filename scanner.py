@@ -1,3 +1,5 @@
+import utils
+
 from abc import ABCMeta, abstractmethod
 import logging
 import os.path
@@ -15,24 +17,6 @@ LOGGER = logging.getLogger(__name__)
 if __name__ == "__main__":
 	LOGGER.error("Module is not inteded to run as '__main__'!")
 	sys.exit(1)
-
-def format_as_includes(includes:list):
-	if includes is None:
-		return list()
-	else:
-		return [format_as_include(element) for element in includes]
-
-def format_as_include(include:str):
-	return f"-I{include.strip()}"
-
-def format_as_defines(defines:list):
-	if defines is None:
-		return list()
-	else:
-		return [format_as_define(element) for element in defines]
-
-def format_as_define(define:str):
-	return f"-D{define.strip()}"
 
 class ScannerException(Exception):
 	def __init__(self, message:str, details:str):
@@ -88,13 +72,12 @@ class Scanner(metaclass=ABCMeta):
 				if funcName not in knownFunctions:
 					funcDecl = elem.type
 					foundFunctions[funcName] = elem
-					funcType = funcDecl.type.type.names
 					LOGGER.debug(f"[{len(foundFunctions)}] Function Delaration: {funcName}")
-					LOGGER.debug(f"\tReturn type: {funcType}")
+					LOGGER.debug(f"\tReturn type: {utils.get_type_name(funcDecl)}")
 					paramList = funcDecl.args.params
 					for param in paramList:
-						paramType = param.type.type.names
-						paramName = param.type.declname
+						paramName = param.name
+						paramType = utils.get_type_name(param)
 						LOGGER.debug(f"\tParameter: {paramName} of Type: {paramType}")
 		return foundFunctions
 
@@ -108,13 +91,12 @@ class Scanner(metaclass=ABCMeta):
 				if funcName not in knownFunctions:
 					funcDecl = elem.decl.type
 					foundFunctions[funcName] = elem
-					funcType = funcDecl.type.type.names
 					LOGGER.debug(f"[{len(foundFunctions)}] Function Definition: {funcName}")
-					LOGGER.debug(f"\tReturn type: {funcType}")
+					LOGGER.debug(f"\tReturn type: {utils.get_type_name(funcDecl)}")
 					paramList = funcDecl.args.params
 					for param in paramList:
-						paramType = param.type.type.names
-						paramName = param.type.declname
+						paramName = param.name
+						paramType = utils.get_type_name(param)
 						LOGGER.debug(f"\tParameter: {paramName} of Type: {paramType}")
 		return foundFunctions
 
@@ -136,14 +118,15 @@ class GCCScanner(Scanner):
 				'-M',
 				self.targetHeader,
 			]
-			+ format_as_includes(self.fakes)
-			+ format_as_includes(self.includes)
-			+ format_as_defines(self.defines), stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
+			+ utils.format_as_includes(self.fakes)
+			+ utils.format_as_includes(self.includes)
+			+ utils.format_as_defines(self.defines), stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
 			stdout = proc.stdout.read().decode('UTF-8')
 			proc.wait()
 			result = proc.poll()
 			if result != 0:
 				ex = ScannerException(f"Header scan '{' '.join(proc.args)}' returned with exit code {result}.", proc.stderr.read().decode('UTF-8'))
+				LOGGER.error(f"Scan error: {ex.details}")
 				LOGGER.exception(ex)
 				raise ex
 		lines = stdout.split(' \\\r\n')
@@ -160,7 +143,10 @@ class GCCScanner(Scanner):
 	@classmethod
 	@overrides
 	def _call_parse(self, pathToHeader:str):
-		cppArgs = ['-E', '-D__attribute__(x)=' ] + format_as_includes(self.fakes) + format_as_includes(self.includes) + format_as_defines(self.defines)
+		cppArgs = (['-E', '-D__attribute__(x)=' ] +
+			utils.format_as_includes(self.fakes) +
+			utils.format_as_includes(self.includes) +
+			utils.format_as_defines(self.defines))
 
 		LOGGER.debug(f"GCC args for parsing: {', '.join(cppArgs)}")
 		return parse_file(pathToHeader, use_cpp=True, cpp_path=GCC_PATH, cpp_args=cppArgs)
