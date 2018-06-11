@@ -53,13 +53,13 @@ if __name__ == "__main__":
 	if fileext != '.h':
 		logger.warning(f"Detected non-standard header file extension '{fileext}' (expected '.h'-file).")
 
-	scanner = scanner.GCCScanner(targetHeader=args.header, fakes=args.fakes, includes=args.includes, defines=args.defines)
+	scnr = scanner.GCCScanner(targetHeader=args.header, fakes=args.fakes, includes=args.includes, defines=args.defines)
 
-	result = scanner.scan()
+	result = scnr.scan()
 	logger.info(f"Function declarations found: {', '.join( [ f.name for f in result.declarations ])}.")
 	logger.info(f"Function definitions found: {', '.join( [ f.decl.name for f in result.definitions ])}.")
 
-	generator = generator.SimpleFakeGenerator(os.path.splitext(os.path.basename(args.output))[0], args.header)
+	gen = generator.SimpleFakeGenerator(os.path.splitext(os.path.basename(args.output))[0], args.header)
 
 	outputFile = args.output.strip()
 	if not os.path.exists(os.path.dirname(outputFile)):
@@ -69,6 +69,6 @@ if __name__ == "__main__":
 
 	logger.info(f"Generatring output file {outputFile}...")
 	with open(outputFile, "w") as fs:
-		generator.generate(result, fs)
+		gen.generate(result, fs)
 
 	logger.info(f"Generation complete!")

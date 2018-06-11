@@ -19,8 +19,8 @@ if __name__ == "__main__":
 	sys.exit(1)
 
 class FakeGenerator(ABC):
-	def __init__(self, fakeName:str):
-		self.fakeName = fakeName
+	def __init__(self):
+		pass
 
 	@abstractmethod
 	def generate(self, result:scanner.ScannerResult, output:io.IOBase):
@@ -29,11 +29,9 @@ class FakeGenerator(ABC):
 class TemplatedFakeGenerator(FakeGenerator):
 	pass
 
-class SimpleFakeGenerator(FakeGenerator):
-	def __init__(self, fakeName:str, originalHeader:str, generateIncludeGuard:bool=True):
-		super().__init__(fakeName)
-		self.originalHeader = originalHeader
-		self.generateIncludeGuard = generateIncludeGuard
+class BareFakeGenerator(FakeGenerator):
+	def __init__(self):
+		super().__init__()
 
 	def _generateBypassForFuncDef(self, funcDef:pycparser.c_ast.FuncDef):
 		funcName = funcDef.decl.name
@@ -55,6 +53,22 @@ class SimpleFakeGenerator(FakeGenerator):
 		LOGGER.debug(f"Creating fake {fake});...")
 		fake += ');\n'
 		return fake
+
+	@overrides
+	def generate(self, result:scanner.ScannerResult, output:io.IOBase):
+		for decl in result.declarations:
+			output.write(self._generateFakeForDecl(decl))
+
+		for definition in result.definitions:
+			output.write(self._generateBypassForFuncDef(definition))
+			output.write(self._generateFakeForDecl(definition.decl))
+
+class SimpleFakeGenerator(BareFakeGenerator):
+	def __init__(self, fakeName:str, originalHeader:str, generateIncludeGuard:bool=True):
+		super().__init__()
+		self.fakeName = fakeName
+		self.originalHeader = originalHeader
+		self.generateIncludeGuard = generateIncludeGuard
 
 	@overrides
 	def generate(self, result:scanner.ScannerResult, output:io.IOBase):
