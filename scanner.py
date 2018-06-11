@@ -134,7 +134,10 @@ class GCCScanner(Scanner):
 		paths = lines[0].split(' ')[2:]
 		includedHeaders.update(zip([ os.path.basename(x) for x in paths ], paths))
 		for line in lines[1:]:
-			paths = [ os.path.normcase(os.path.normpath(pathStr)) for pathStr in line.strip().split(' ') ]
+			paths = [ os.path.normcase(os.path.normpath(pathStr)) for pathStr in
+				filter(
+					lambda p: os.path.normpath(p.strip()) != os.path.normpath(self.targetHeader.strip()),
+					line.strip().split(' ')) ]
 			for key, val in zip([ os.path.basename(x) for x in paths ], paths):
 				if key not in includedHeaders:
 					includedHeaders[key] = val
