@@ -15,7 +15,7 @@ GCC_PATH = 'gcc'
 LOGGER = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-	LOGGER.error("Module is not inteded to run as '__main__'!")
+	LOGGER.error("Module is not intended to run as '__main__'!")
 	sys.exit(1)
 
 class ScannerException(Exception):
@@ -72,7 +72,7 @@ class Scanner(metaclass=ABCMeta):
 				if funcName not in knownFunctions:
 					funcDecl = elem.type
 					foundFunctions[funcName] = elem
-					LOGGER.debug(f"[{len(foundFunctions)}] Function Delaration: {funcName}")
+					LOGGER.debug(f"[{len(foundFunctions)}] Function Declaration: {funcName}")
 					LOGGER.debug(f"\tReturn type: {utils.get_type_name(funcDecl)}")
 					paramList = funcDecl.args.params
 					for param in paramList:

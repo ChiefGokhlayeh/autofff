@@ -15,7 +15,7 @@ import pycparser
 LOGGER = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-	LOGGER.error("Module is not inteded to run as '__main__'!")
+	LOGGER.error("Module is not intended to run as '__main__'!")
 	sys.exit(1)
 
 class FakeGenerator(ABC):
