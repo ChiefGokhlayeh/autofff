@@ -11,6 +11,8 @@ import re
 from overrides import overrides
 
 import pycparser
+import pycparser.c_generator
+from pycparser.c_ast import *
 
 LOGGER = logging.getLogger(__name__)
 
@@ -20,7 +22,7 @@ if __name__ == "__main__":
 
 class FakeGenerator(ABC):
 	def __init__(self):
-		pass
+		self.cGen = pycparser.c_generator.CGenerator()
 
 	@abstractmethod
 	def generate(self, result:scanner.ScannerResult, output:io.IOBase):
@@ -33,14 +35,28 @@ class BareFakeGenerator(FakeGenerator):
 	def __init__(self):
 		super().__init__()
 
-	def _generateBypassForFuncDef(self, funcDef:pycparser.c_ast.FuncDef):
+	def _generateTypeDefForDecl(self, decl:Decl):
+		typedefs = ''
+		for param in filter(
+			lambda p: utils.is_function_pointer_type(p),
+			decl.type.args.params):
+			name = utils.create_typedef_name_for_fnc_ptr(decl, param)
+
+			param.type.type.type.declname = name
+			typedef = Typedef(name, param.quals, ['typedef'], param.type)
+
+			param.type = TypeDecl(param.name, param.type.quals, IdentifierType([name]))
+			typedefs += f"{self.cGen.visit_Typedef(typedef)};\n"
+		return typedefs
+
+	def _generateBypassForFuncDef(self, funcDef:FuncDef):
 		funcName = funcDef.decl.name
 		bypass = f"#define {funcName} {funcName}_fff\n"
 		bypass += f"#define {funcName}_fake {funcName}_fff_fake\n"
 		bypass += f"#define {funcName}_reset {funcName}_fff_reset\n"
 		return bypass
 
-	def _generateFakeForDecl(self, decl:pycparser.c_ast.Decl):
+	def _generateFakeForDecl(self, decl:Decl):
 		funcName = decl.name
 		returnType = utils.get_type_name(decl.type)
 		if returnType == 'void':
@@ -56,6 +72,21 @@ class BareFakeGenerator(FakeGenerator):
 
 	@overrides
 	def generate(self, result:scanner.ScannerResult, output:io.IOBase):
+		for decl in filter(
+				lambda decl: decl.type.args is not None and any(map(
+					lambda param: utils.is_function_pointer_type(param),
+					decl.type.args.params
+				)),
+				result.declarations):
+			output.write(self._generateTypeDefForDecl(decl))
+		for defin in filter(
+				lambda defin: defin.decl.type.args is not None and any(map(
+					lambda param: utils.is_function_pointer_type(param),
+					defin.decl.type.args.params
+				)),
+				result.definitions):
+			output.write(self._generateTypeDefForDecl(defin.decl))
+
 		for decl in result.declarations:
 			output.write(self._generateFakeForDecl(decl))
 
@@ -89,6 +120,22 @@ class SimpleFakeGenerator(BareFakeGenerator):
 		]
 		output.writelines(incGuardBeginning)
 
+		for decl in filter(
+				lambda decl: decl.type.args is not None and any(map(
+					lambda param: utils.is_function_pointer_type(param),
+					decl.type.args.params
+				)),
+				result.declarations):
+			output.write(self._generateTypeDefForDecl(decl))
+		for defin in filter(
+				lambda defin: defin.decl.type.args is not None and any(map(
+					lambda param: utils.is_function_pointer_type(param),
+					defin.decl.type.args.params
+				)),
+				result.definitions):
+			output.write(self._generateTypeDefForDecl(defin.decl))
+
+		output.write("\n")
 		for decl in result.declarations:
 			output.write(self._generateFakeForDecl(decl))
 
