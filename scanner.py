@@ -73,7 +73,7 @@ class Scanner(metaclass=ABCMeta):
 					funcDecl = elem.type
 					foundFunctions[funcName] = elem
 					LOGGER.debug(f"[{len(foundFunctions)}] Function Declaration: {funcName}")
-					LOGGER.debug(f"\tReturn type: {utils.get_type_name(funcDecl)}")
+					LOGGER.debug(f"\tReturn type: {utils.get_type_name(elem)}")
 					paramList = funcDecl.args.params
 					for param in paramList:
 						paramName = param.name
@@ -87,12 +87,13 @@ class Scanner(metaclass=ABCMeta):
 
 		for elem in ast.ext:
 			if isinstance(elem, pycparser.c_ast.FuncDef):
-				funcName = elem.decl.name
+				decl = elem.decl
+				funcName = decl.name
 				if funcName not in knownFunctions:
-					funcDecl = elem.decl.type
+					funcDecl = decl.type
 					foundFunctions[funcName] = elem
 					LOGGER.debug(f"[{len(foundFunctions)}] Function Definition: {funcName}")
-					LOGGER.debug(f"\tReturn type: {utils.get_type_name(funcDecl)}")
+					LOGGER.debug(f"\tReturn type: {utils.get_type_name(decl)}")
 					paramList = funcDecl.args.params
 					for param in paramList:
 						paramName = param.name

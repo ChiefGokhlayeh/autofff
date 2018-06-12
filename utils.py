@@ -29,17 +29,28 @@ def format_as_define(define:str):
 
 def get_type_name(decl:pycparser.c_ast.Decl):
 	if isinstance(decl.type, pycparser.c_ast.TypeDecl):
-		return decl.type.type.names[0]
+		if len(decl.type.quals) > 0:
+			quals = ' '.join(decl.type.quals) + ' '
+		else:
+			quals = ''
+		return f'{quals}{decl.type.type.names[0]}'
 	elif isinstance(decl.type, pycparser.c_ast.PtrDecl):
-		ptrDecl = decl.type
-		depth = 1
-		while True:
-			if isinstance(ptrDecl.type, pycparser.c_ast.PtrDecl):
-				ptrDecl = ptrDecl.type
-				depth += 1
-			else:
-				break
-		dummy = ''.join(['*'] * depth)
-		return f'{ptrDecl.type.type.names[0]}{dummy}'
+		if len(decl.type.quals) > 0:
+			quals = ' ' + ' '.join(decl.type.quals)
+		else:
+			quals = ''
+		return f'{get_type_name(decl.type)}*{quals}'
+
+
+		#ptrDeclStack = [ decl.type ]
+		#while True:
+		#	if isinstance(ptrDeclStack[-1].type, pycparser.c_ast.PtrDecl):
+		#		ptrDeclStack.append(ptrDeclStack[-1].type)
+		#	else:
+		#		break
+		#dummy = ''.join(['*'] * len(ptrDeclStack))
+		#return f'{get_type_name(ptrDeclStack[-1])}{dummy}'
+	elif isinstance(decl.type, pycparser.c_ast.FuncDecl):
+		return get_type_name(decl.type)
 	else:
-		raise ValueError(f"Unknown type {type(decl)}")
+		raise ValueError(f"Unknown type {type(decl.type)}")
