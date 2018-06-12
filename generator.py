@@ -38,7 +38,7 @@ class BareFakeGenerator(FakeGenerator):
 	def _generateTypeDefForDecl(self, decl:Decl):
 		typedefs = ''
 		for param in filter(
-			lambda p: utils.is_function_pointer_type(p),
+			lambda p: utils.is_function_pointer_type(p.type),
 			decl.type.args.params):
 			name = utils.create_typedef_name_for_fnc_ptr(decl, param)
 
@@ -74,14 +74,14 @@ class BareFakeGenerator(FakeGenerator):
 	def generate(self, result:scanner.ScannerResult, output:io.IOBase):
 		for decl in filter(
 				lambda decl: decl.type.args is not None and any(map(
-					lambda param: utils.is_function_pointer_type(param),
+					lambda param: utils.is_function_pointer_type(param.type),
 					decl.type.args.params
 				)),
 				result.declarations):
 			output.write(self._generateTypeDefForDecl(decl))
 		for defin in filter(
 				lambda defin: defin.decl.type.args is not None and any(map(
-					lambda param: utils.is_function_pointer_type(param),
+					lambda param: utils.is_function_pointer_type(param.type),
 					defin.decl.type.args.params
 				)),
 				result.definitions):
@@ -122,14 +122,14 @@ class SimpleFakeGenerator(BareFakeGenerator):
 
 		for decl in filter(
 				lambda decl: decl.type.args is not None and any(map(
-					lambda param: utils.is_function_pointer_type(param),
+					lambda param: utils.is_function_pointer_type(param.type),
 					decl.type.args.params
 				)),
 				result.declarations):
 			output.write(self._generateTypeDefForDecl(decl))
 		for defin in filter(
 				lambda defin: defin.decl.type.args is not None and any(map(
-					lambda param: utils.is_function_pointer_type(param),
+					lambda param: utils.is_function_pointer_type(param.type),
 					defin.decl.type.args.params
 				)),
 				result.definitions):
