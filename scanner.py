@@ -76,8 +76,11 @@ class Scanner(metaclass=ABCMeta):
 					LOGGER.debug(f"\tReturn type: {utils.get_type_name(elem)}")
 					paramList = funcDecl.args.params
 					for param in paramList:
-						paramName = param.name
-						paramType = utils.get_type_name(param)
+						if isinstance(param, pycparser.c_ast.EllipsisParam):
+							paramName = '...'
+						else:
+							paramName = param.name
+							paramType = utils.get_type_name(param)
 						LOGGER.debug(f"\tParameter: {paramName} of Type: {paramType}")
 		return foundFunctions
 

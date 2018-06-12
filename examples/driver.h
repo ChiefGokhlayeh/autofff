@@ -44,4 +44,7 @@ uint16_t Driver_GetRevision(void)
     return 120;
 }
 
+/* Showcasing vararg/ellipsis parameters */
+void debug_print(const char* format, ...);
+
 #endif

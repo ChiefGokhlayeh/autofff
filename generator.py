@@ -59,13 +59,22 @@ class BareFakeGenerator(FakeGenerator):
 	def _generateFakeForDecl(self, decl:Decl):
 		funcName = decl.name
 		returnType = utils.get_type_name(decl.type)
-		if returnType == 'void':
-			fake = f'FAKE_VOID_FUNC({funcName}'
+		if any(map(lambda p: isinstance(p, EllipsisParam), decl.type.args.params)):
+			vararg = '_VARARG'
 		else:
-			fake = f'FAKE_VALUE_FUNC({returnType}, {funcName}'
-		params = filter(lambda param: utils.get_type_name(param) != 'void', decl.type.args.params)
-		for param in params:
-			fake += f', {utils.get_type_name(param)}'
+			vararg = ''
+		if returnType == 'void':
+			fake = f'FAKE_VOID_FUNC{vararg}({funcName}'
+		else:
+			fake = f'FAKE_VALUE_FUNC{vararg}({returnType}, {funcName}'
+		if len(decl.type.args.params) > 1 or (
+			not isinstance(decl.type.args.params[0], EllipsisParam) and
+				utils.get_type_name(decl.type.args.params[0]) != 'void'):
+			for param in decl.type.args.params:
+				if isinstance(param, EllipsisParam):
+					fake += ', ...'
+				else:
+					fake += f', {utils.get_type_name(param)}'
 		LOGGER.debug(f"Creating fake {fake});...")
 		fake += ');\n'
 		return fake
@@ -74,14 +83,16 @@ class BareFakeGenerator(FakeGenerator):
 	def generate(self, result:scanner.ScannerResult, output:io.IOBase):
 		for decl in filter(
 				lambda decl: decl.type.args is not None and any(map(
-					lambda param: utils.is_function_pointer_type(param.type),
+					lambda param: (not isinstance(param, EllipsisParam) and
+						utils.is_function_pointer_type(param.type)),
 					decl.type.args.params
 				)),
 				result.declarations):
 			output.write(self._generateTypeDefForDecl(decl))
 		for defin in filter(
 				lambda defin: defin.decl.type.args is not None and any(map(
-					lambda param: utils.is_function_pointer_type(param.type),
+					lambda param: (not isinstance(param, EllipsisParam) and
+						utils.is_function_pointer_type(param.type)),
 					defin.decl.type.args.params
 				)),
 				result.definitions):
@@ -122,14 +133,16 @@ class SimpleFakeGenerator(BareFakeGenerator):
 
 		for decl in filter(
 				lambda decl: decl.type.args is not None and any(map(
-					lambda param: utils.is_function_pointer_type(param.type),
+					lambda param: (not isinstance(param, EllipsisParam) and
+						utils.is_function_pointer_type(param.type)),
 					decl.type.args.params
 				)),
 				result.declarations):
 			output.write(self._generateTypeDefForDecl(decl))
 		for defin in filter(
 				lambda defin: defin.decl.type.args is not None and any(map(
-					lambda param: utils.is_function_pointer_type(param.type),
+					lambda param: (not isinstance(param, EllipsisParam) and
+						utils.is_function_pointer_type(param.type)),
 					defin.decl.type.args.params
 				)),
 				result.definitions):

@@ -35,6 +35,9 @@ def _get_type_name_struct(struct:Struct):
 def _get_type_name_union(union:Union):
 	return CGenerator().visit_Union(union).replace('\n', '')
 
+def _get_type_name_enum(enum:Enum):
+	return CGenerator().visit_Enum(enum)
+
 def _get_type_name_identifiertype(identifiertype:IdentifierType):
 	return CGenerator().visit_IdentifierType(identifiertype)
 
@@ -49,6 +52,8 @@ def _get_type_name_typedecl(typedecl:TypeDecl):
 		names = _get_type_name_struct(typedecl.type)
 	elif isinstance(typedecl.type, Union):
 		names = _get_type_name_union(typedecl.type)
+	elif isinstance(typedecl.type, Enum):
+		names = _get_type_name_enum(typedecl.type)
 	else:
 		raise ValueError(f"Unknown type {type(typedecl.type)}")
 	return f'{quals}{names}'
