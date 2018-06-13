@@ -7,11 +7,11 @@
             "request": "launch",
             "program": "${workspaceFolder}/autofff.py",
             "args": [
-                "examples/driver.h",
-                "-i examples",
-                "-f dependencies/pycparser/utils/fake_libc_include",
-                "--debug"
-                "-o output/driver_th.h",
+                "-O output/driver_th.h",
+                "-I examples",
+                "-F dependencies/pycparser/utils/fake_libc_include",
+                "--debug",
+                "examples/driver.h"
             ]
         },
         {
