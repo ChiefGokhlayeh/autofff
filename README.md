@@ -61,3 +61,77 @@ if not os.path.exists(os.path.dirname(outputHeader)):
 with open(outputHeader, "w") as fs:
     generator.generate(result, fs) # Generate fff-fakes from scanner-result
 ```
+
+## How Fakes Are Generated
+The format of the generated test-header obviously depends on the specifics of the `FakeGenerator` being used.
+1. The `BareFakeGenerator` will only generate the `FAKE_VALUE_`- and `FAKE_VOID_FUNC` macros without any decorations, like include guards or header includes. Use this generator if you want to add your own file (shell-based) processing on top.
+2. The `SimpleFakeGenerator` will generate a "minimum viable test header", meaning the result should be compilable without too much effort.
+
+### In-Header Defined Functions
+In some API headers functions may be defined within the header. This will cause issues when trying to fake this function, because by including the header the function definition is copied into each translation unit. If we try to apply a fake definition the usual way, we will end up with a _"redefinition of function *x*"_ error.
+
+*AutoFFF* implements a workaround to avoid this redefinition error and allowing to fake the original function. This workaround simply consists of some defines which will re-route any call to the original in-header definition to our faked one. For this to work it is required that the test-header is included (and thereby pre-processed) _before_ any function call to the function under consideration is instructed, i.e. the test-header must be included _before_ the CuT. Any function call that is processed before the workaround is being pre-processed will leave this function call targeted towards the original in-header definition.
+
+In practice the workaround looks like this:
+```c
+/* api.h */
+#ifndef API_HEADER_H_
+#define API_HEADER_H_
+
+const char* foo(void)
+{
+    return "Definitions inside headers are great!";
+}
+
+#endif
+```
+```c
+/* api_th.h */
+#ifndef TEST_HEADER_H_
+#define TEST_HEADER_H_
+
+#include "fff.h"
+#include "api.h"
+
+/* Re-route any call to 'foo' to 'foo_fff' (our fake definition). */
+#define foo foo_fff
+/* By re-routing the '_fake' and '_reset' type and function the workaround becomes invisible in the test-case. */
+#define foo_fake Foo_fff_fake
+#define foo_reset Foo_fff_reset
+/* Create the fake definition using the now re-routed 'foo'-symbol. */
+FAKE_VOID_FUNC(foo);
+
+#endif
+```
+```c
+/* cut.c - code-under-test */
+#include "api.h"
+#include <stdio.h>
+
+const char* bar(void)
+{
+    const char* str = foo();
+    return str;
+}
+```
+```c
+/* test.c */
+#include "fff.h"
+#include "api_th.h" /* fakes + workaround */
+#include "cut.c"
+
+setup(void)
+{
+    RESET_FAKE(foo);
+}
+
+TEST_F(foo, ReturnBar_Success)
+{
+    const char* expected_retval = "Definitions inside headers make faking difficult!";
+    foo_fake.return_val = expected_retval
+
+    const char* str = bar();
+
+    ASSERT_STREQ(expected_retval, str);
+}
+```
