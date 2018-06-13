@@ -17,8 +17,17 @@ def format_as_includes(includes:list):
 	else:
 		return [format_as_include(element) for element in includes]
 
+def format_as_include_files(fileInclude:list):
+	if fileInclude is None:
+		return list()
+	else:
+		return [format_as_include_file(element) for element in fileInclude]
+
 def format_as_include(include:str):
 	return f"-I{include.strip()}"
+
+def format_as_include_file(fileInclude:str):
+	return f"-include{fileInclude.strip()}"
 
 def format_as_defines(defines:list):
 	if defines is None:

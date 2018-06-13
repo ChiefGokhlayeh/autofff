@@ -30,10 +30,11 @@ class ScannerResult():
 
 class Scanner(metaclass=ABCMeta):
 	@classmethod
-	def __init__(self, targetHeader:str, fakes:str, includes:list=None, defines:list=None):
+	def __init__(self, targetHeader:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None):
 		self.targetHeader = targetHeader
 		self.fakes = fakes
 		self.includes = includes
+		self.includeFiles = includeFiles
 		self.defines = defines
 
 	@classmethod
@@ -110,21 +111,23 @@ class Scanner(metaclass=ABCMeta):
 
 class GCCScanner(Scanner):
 	@classmethod
-	def __init__(self, targetHeader:str, fakes:str, includes:list=None, defines:list=None):
-		super().__init__(targetHeader, fakes, includes, defines)
+	def __init__(self, targetHeader:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None):
+		super().__init__(targetHeader, fakes, includes, includeFiles, defines)
 
 	@classmethod
 	@overrides
 	def _scan_included_headers(self):
-		with subprocess.Popen(
-			[
+		with subprocess.Popen(([
 				GCC_PATH,
 				'-M',
 				self.targetHeader,
 			]
 			+ utils.format_as_includes(self.fakes)
 			+ utils.format_as_includes(self.includes)
-			+ utils.format_as_defines(self.defines), stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
+			+ utils.format_as_include_files(self.includeFiles)
+			+ utils.format_as_defines(self.defines)),
+			stdout=subprocess.PIPE,
+			stderr=subprocess.PIPE) as proc:
 			stdout = proc.stdout.read().decode('UTF-8')
 			proc.wait()
 			result = proc.poll()
@@ -154,6 +157,7 @@ class GCCScanner(Scanner):
 		cppArgs = (['-E', '-D__attribute__(x)=' ] +
 			utils.format_as_includes(self.fakes) +
 			utils.format_as_includes(self.includes) +
+			utils.format_as_include_files(self.includeFiles) +
 			utils.format_as_defines(self.defines))
 
 		LOGGER.debug(f"GCC args for parsing: {', '.join(cppArgs)}")

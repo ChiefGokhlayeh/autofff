@@ -106,10 +106,11 @@ class BareFakeGenerator(FakeGenerator):
 			output.write(self._generateFakeForDecl(definition.decl))
 
 class SimpleFakeGenerator(BareFakeGenerator):
-	def __init__(self, fakeName:str, originalHeader:str, generateIncludeGuard:bool=True):
+	def __init__(self, fakeName:str, originalHeader:str, includeFiles:list=None, generateIncludeGuard:bool=True):
 		super().__init__()
 		self.fakeName = fakeName
 		self.originalHeader = originalHeader
+		self.includeFiles = includeFiles
 		self.generateIncludeGuard = generateIncludeGuard
 
 	@overrides
@@ -123,9 +124,11 @@ class SimpleFakeGenerator(BareFakeGenerator):
 		incGuardBeginning = [
 			f'#ifndef {incGuard}\n',
 			f'#define {incGuard}\n\n',
-			f'#include "fff.h"\n',
-			f'#include "{os.path.basename(self.originalHeader)}"\n\n'
+			f'#include "fff.h"\n'
 		]
+		if self.includeFiles is not None:
+			incGuardBeginning += [ f'#include "{os.path.basename(f)}"\n' for f in self.includeFiles ]
+		incGuardBeginning += f'#include "{os.path.basename(self.originalHeader)}"\n\n'
 		incGuardEnd = [
 			f"\n#endif /* {incGuard} */\n"
 		]
