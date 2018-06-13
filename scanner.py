@@ -12,6 +12,16 @@ import pycparser
 from pycparser import parse_file
 
 GCC_PATH = 'gcc'
+GCC_SPECIFIC_MACROS = [
+	r'-D__attribute__(x)=',
+	r'-D__asm__(x)=',
+	r'-D__const=',
+	r'-D__const__=',
+	r'-D__restrict=',
+	r'-D__restrict__=',
+	r'-D__extension__=',
+	r'-D__inline__=',
+]
 LOGGER = logging.getLogger(__name__)
 
 if __name__ == "__main__":
@@ -122,6 +132,7 @@ class GCCScanner(Scanner):
 				'-M',
 				self.targetHeader,
 			]
+			+ GCC_SPECIFIC_MACROS
 			+ utils.format_as_includes(self.fakes)
 			+ utils.format_as_includes(self.includes)
 			+ utils.format_as_include_files(self.includeFiles)
@@ -154,7 +165,7 @@ class GCCScanner(Scanner):
 	@classmethod
 	@overrides
 	def _call_parse(self, pathToHeader:str):
-		cppArgs = (['-E', '-D__attribute__(x)=' ] +
+		cppArgs = (['-E'] + GCC_SPECIFIC_MACROS +
 			utils.format_as_includes(self.fakes) +
 			utils.format_as_includes(self.includes) +
 			utils.format_as_include_files(self.includeFiles) +
