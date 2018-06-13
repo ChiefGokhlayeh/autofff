@@ -29,11 +29,15 @@ Finally it must be stated, that these two philosophies seldomly mix well.
 ### As a Standalone Script
 To run the example:
 ```shell
-$ py -3.6 autofff.py 
+$ py -3.6 autofff.py
     ./examples/driver.h
     -O ./output/driver_th.h
     -I ./examples
     -F ./dependencies/pycparser/utils/fake_libc_include
+```
+### Running the Make Example
+```shell
+$ make -f examples/generate_fakes.mk CRAWL_PATHS=examples
 ```
 ### As a Python Package
 ```python
