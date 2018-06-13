@@ -30,10 +30,10 @@ Finally it must be stated, that these two philosophies seldomly mix well.
 To run the example:
 ```shell
 $ py -3.6 autofff.py 
-    ./examples/example.h
-    -o ./output/example_th.h
-    -i ./examples
-    -f ./dependencies/pycparser/utils/fake_libc_include
+    ./examples/driver.h
+    -O ./output/driver_th.h
+    -I ./examples
+    -F ./dependencies/pycparser/utils/fake_libc_include
 ```
 ### As a Python Package
 ```python
