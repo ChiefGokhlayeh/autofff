@@ -39,7 +39,6 @@ class ScannerResult():
 		self.definitions = definitions
 
 class Scanner(metaclass=ABCMeta):
-	@classmethod
 	def __init__(self, targetHeader:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None):
 		self.targetHeader = targetHeader
 		self.fakes = fakes
@@ -47,7 +46,6 @@ class Scanner(metaclass=ABCMeta):
 		self.includeFiles = includeFiles
 		self.defines = defines
 
-	@classmethod
 	def scan(self):
 		includedHeaders = self._scan_included_headers()
 		incFuncDecl = {}
@@ -73,7 +71,6 @@ class Scanner(metaclass=ABCMeta):
 	def _scan_included_headers(self):
 		pass
 
-	@classmethod
 	def _mine_function_declarations(self, ast:pycparser.c_ast.FileAST, knownFunctions:dict=dict()):
 		foundFunctions = {}
 
@@ -95,7 +92,6 @@ class Scanner(metaclass=ABCMeta):
 						LOGGER.debug(f"\tParameter: {paramName} of Type: {paramType}")
 		return foundFunctions
 
-	@classmethod
 	def _mine_function_definitions(self, ast:pycparser.c_ast.FileAST, knownFunctions:dict=dict()):
 		foundFunctions = {}
 
@@ -120,11 +116,9 @@ class Scanner(metaclass=ABCMeta):
 		pass
 
 class GCCScanner(Scanner):
-	@classmethod
 	def __init__(self, targetHeader:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None):
 		super().__init__(targetHeader, fakes, includes, includeFiles, defines)
 
-	@classmethod
 	@overrides
 	def _scan_included_headers(self):
 		with subprocess.Popen(([
@@ -162,7 +156,6 @@ class GCCScanner(Scanner):
 		LOGGER.debug(f"Included headers: {includedHeaders}")
 		return includedHeaders
 
-	@classmethod
 	@overrides
 	def _call_parse(self, pathToHeader:str):
 		cppArgs = (['-E'] + GCC_SPECIFIC_MACROS +
