@@ -41,14 +41,14 @@ class ScannerResult():
 		self.definitions = definitions
 
 class Scanner(metaclass=ABCMeta):
-	def __init__(self, targetHeader:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None, ignorePattern:str=GCC_SPECIFIC_IGNORE_PATTERN):
+	def __init__(self, targetHeader:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None, ignorePattern:str=None):
 		self.targetHeader = targetHeader
 		self.fakes = fakes
 		self.includes = includes
 		self.includeFiles = includeFiles
 		self.defines = defines
 		if isinstance(ignorePattern, str):
-			self.ignorePattern = re.compile(GCC_SPECIFIC_IGNORE_PATTERN)
+			self.ignorePattern = re.compile(ignorePattern)
 		else:
 			self.ignorePattern = ignorePattern
 
@@ -124,7 +124,7 @@ class Scanner(metaclass=ABCMeta):
 
 class GCCScanner(Scanner):
 	def __init__(self, targetHeader:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None):
-		super().__init__(targetHeader, fakes, includes, includeFiles, defines)
+		super().__init__(targetHeader, fakes, includes, includeFiles, defines, GCC_SPECIFIC_IGNORE_PATTERN)
 
 	@overrides
 	def _scan_included_headers(self):
