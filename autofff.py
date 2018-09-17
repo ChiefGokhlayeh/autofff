@@ -6,10 +6,10 @@ import sys
 import scanner
 import generator
 
-if __name__ == "__main__":
+def main():
 	parser = ArgumentParser()
 	parser.add_argument('header',
-		type=str, 
+		type=str,
 		help="Path of c-header file to generate fff-fakes for.")
 	parser.add_argument('-O', '--output',
 		type=str,
@@ -89,3 +89,6 @@ if __name__ == "__main__":
 		gen.generate(result, fs)
 
 	logger.info(f"Generation complete!")
+
+if __name__ == "__main__":
+	main()
