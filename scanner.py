@@ -56,10 +56,10 @@ class Scanner(metaclass=ABCMeta):
 		includedHeaders = self._scan_included_headers()
 		incFuncDecl = {}
 		incFuncDef = {}
-		for includedHeader in sorted(includedHeaders.values(), key=lambda entry: entry.ordinal):
+		for includedHeader in includedHeaders.values():
 			LOGGER.info(f"Looking for included function declarations in {includedHeader.path}...")
-			otherHeaders = filter(lambda i: i != includedHeader.path, includedHeaders.values())
-			ast = self._call_parse(includedHeader.path, [ x.path for x in otherHeaders ])
+			otherHeaders = filter(lambda i: i.path != includedHeader.path, includedHeaders.values())
+			ast = self._call_parse(includedHeader.path, [ x.path for x in sorted(otherHeaders, key=lambda entry: entry.ordinal) ])
 			incFuncDecl = {**self._mine_function_declarations(ast, incFuncDecl), **incFuncDecl }
 			if len(incFuncDecl) > 0:
 				LOGGER.info(f"Found '{len(incFuncDecl)}' included function declarations in {os.path.basename(includedHeader.path)}: {', '.join(incFuncDecl)}.")
@@ -215,3 +215,9 @@ class OrderedIncludeHeader(object):
 	def __init__(self, path:str, ordinal:int):
 		self.path = path
 		self.ordinal = ordinal
+
+	def __str__(self):
+		return f"[{self.ordinal}] {self.path}"
+
+	def __repr__(self):
+		return self.__str__()
