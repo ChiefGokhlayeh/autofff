@@ -3,13 +3,14 @@ import utils
 from abc import ABCMeta, abstractmethod
 import logging
 import os.path
+import re
 import subprocess
 import sys
+import tempfile
 
 from overrides import overrides
 
 import pycparser
-from pycparser import parse_file
 
 GCC_PATH = 'gcc'
 GCC_SPECIFIC_MACROS = [
@@ -22,6 +23,7 @@ GCC_SPECIFIC_MACROS = [
 	r'-D__extension__=',
 	r'-D__inline__=',
 ]
+GCC_SPECIFIC_IGNORE_PATTERN = r"([\s\n]*(__asm|asm)[\s\n]*(volatile|[\s\n]*)(goto|[\s\n]*)(.|\n|;)*?;)"
 LOGGER = logging.getLogger(__name__)
 
 if __name__ == "__main__":
@@ -39,28 +41,33 @@ class ScannerResult():
 		self.definitions = definitions
 
 class Scanner(metaclass=ABCMeta):
-	def __init__(self, targetHeader:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None):
+	def __init__(self, targetHeader:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None, ignorePattern:str=GCC_SPECIFIC_IGNORE_PATTERN):
 		self.targetHeader = targetHeader
 		self.fakes = fakes
 		self.includes = includes
 		self.includeFiles = includeFiles
 		self.defines = defines
+		if isinstance(ignorePattern, str):
+			self.ignorePattern = re.compile(GCC_SPECIFIC_IGNORE_PATTERN)
+		else:
+			self.ignorePattern = ignorePattern
 
 	def scan(self):
 		includedHeaders = self._scan_included_headers()
 		incFuncDecl = {}
 		incFuncDef = {}
-		for includedHeader in includedHeaders.values():
-			LOGGER.info(f"Looking for included function declarations in {includedHeader}...")
-			ast = self._call_parse(includedHeader)
+		for includedHeader in sorted(includedHeaders.values(), key=lambda entry: entry.ordinal):
+			LOGGER.info(f"Looking for included function declarations in {includedHeader.path}...")
+			otherHeaders = filter(lambda i: i != includedHeader.path, includedHeaders.values())
+			ast = self._call_parse(includedHeader.path, [ x.path for x in otherHeaders ])
 			incFuncDecl = {**self._mine_function_declarations(ast, incFuncDecl), **incFuncDecl }
 			if len(incFuncDecl) > 0:
-				LOGGER.info(f"Found '{len(incFuncDecl)}' included function declarations in {os.path.basename(includedHeader)}: {', '.join(incFuncDecl)}.")
+				LOGGER.info(f"Found '{len(incFuncDecl)}' included function declarations in {os.path.basename(includedHeader.path)}: {', '.join(incFuncDecl)}.")
 			else:
 				LOGGER.info(f"No included function declarations found.")
 			incFuncDef = {**self._mine_function_definitions(ast, incFuncDef), **incFuncDef }
 			if len(incFuncDef) > 0:
-				LOGGER.info(f"Found '{len(incFuncDef)}' included function definitions in {os.path.basename(includedHeader)}: {', '.join(incFuncDef)}.")
+				LOGGER.info(f"Found '{len(incFuncDef)}' included function definitions in {os.path.basename(includedHeader.path)}: {', '.join(incFuncDef)}.")
 			else:
 				LOGGER.info(f"No included function definitions found.")
 
@@ -112,7 +119,7 @@ class Scanner(metaclass=ABCMeta):
 		return foundFunctions
 
 	@abstractmethod
-	def _call_parse(self, pathToHeader:str):
+	def _call_parse(self, pathToHeader:str, includeFiles:list=None):
 		pass
 
 class GCCScanner(Scanner):
@@ -143,8 +150,8 @@ class GCCScanner(Scanner):
 				raise ex
 		lines = stdout.split(' \\\r\n')
 		includedHeaders = {}
-		paths = lines[0].split(' ')[2:]
-		includedHeaders.update(zip([ os.path.basename(x) for x in paths ], paths))
+		paths = list(filter(lambda path: path != '\\\n', lines[0].split(' ')[2:]))
+		includedHeaders.update(zip([ os.path.basename(x) for x in paths ], [ OrderedIncludeHeader(path, i) for i, path in enumerate(paths) ]))
 		for line in lines[1:]:
 			paths = [ os.path.normcase(os.path.normpath(pathStr)) for pathStr in
 				filter(
@@ -157,12 +164,54 @@ class GCCScanner(Scanner):
 		return includedHeaders
 
 	@overrides
-	def _call_parse(self, pathToHeader:str):
+	def _call_parse(self, pathToHeader:str, includeFiles:list=None):
 		cppArgs = (['-E'] + GCC_SPECIFIC_MACROS +
 			utils.format_as_includes(self.fakes) +
 			utils.format_as_includes(self.includes) +
 			utils.format_as_include_files(self.includeFiles) +
+			utils.format_as_include_files(includeFiles) +
 			utils.format_as_defines(self.defines))
 
 		LOGGER.debug(f"GCC args for parsing: {', '.join(cppArgs)}")
-		return parse_file(pathToHeader, use_cpp=True, cpp_path=GCC_PATH, cpp_args=cppArgs)
+		return self._parse_file(pathToHeader, use_cpp=True, cpp_path=GCC_PATH, cpp_args=cppArgs)
+
+	def _preprocess_file(self, filename:str, cpp_path:str='cpp', cpp_args:str=''):
+		path_list = [cpp_path]
+		if isinstance(cpp_args, list):
+			path_list += cpp_args
+		elif cpp_args != '':
+			path_list += [cpp_args]
+		path_list += [filename]
+
+		try:
+			# Note the use of universal_newlines to treat all newlines
+			# as \n for Python's purpose
+			#
+			pipe = subprocess.Popen(path_list,
+							stdout=subprocess.PIPE,
+							universal_newlines=True)
+			text = pipe.communicate()[0]
+		except OSError as e:
+			raise RuntimeError("Unable to invoke 'cpp'.  " +
+				'Make sure its path was passed correctly\n' +
+				('Original error: %s' % e))
+
+		filteredText = self.ignorePattern.sub('', text)
+
+		return filteredText
+
+	def _parse_file(self, filename:str, use_cpp:bool=False, cpp_path:str='cpp', cpp_args:str='', parser:pycparser.CParser=None):
+		if use_cpp:
+			text = self._preprocess_file(filename, cpp_path, cpp_args)
+		else:
+			with open(filename, 'rU') as f:
+				text = f.read()
+
+		if parser is None:
+			parser = pycparser.CParser()
+		return parser.parse(text, filename)
+
+class OrderedIncludeHeader(object):
+	def __init__(self, path:str, ordinal:int):
+		self.path = path
+		self.ordinal = ordinal
