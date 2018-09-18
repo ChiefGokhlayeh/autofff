@@ -24,6 +24,8 @@ GCC_SPECIFIC_MACROS = [
 	r'-D__inline__=',
 ]
 GCC_SPECIFIC_IGNORE_PATTERN = r"([\s\n]*(__asm|asm)[\s\n]*(volatile|[\s\n]*)(goto|[\s\n]*)(.|\n|;)*?;)"
+ERROR_CONTEXT_PREV_LINE_COUNT = 5
+ERROR_CONTEXT_POST_LINE_COUNT = 5
 LOGGER = logging.getLogger(__name__)
 
 if __name__ == "__main__":
@@ -207,4 +209,31 @@ class GCCScanner(Scanner):
 
 		if parser is None:
 			parser = pycparser.CParser()
-		return parser.parse(text, filename)
+		try:
+			return parser.parse(text, filename)
+		except pycparser.c_parser.ParseError as error:
+			if isinstance(error, pycparser.c_parser.ParseError):
+				context = self._parse_error_context(text, error, filename)
+			else:
+				context = ""
+			LOGGER.error(f"Parsing of {filename} failed. Details:\t{str(error)}\n{context}")
+			raise error
+
+	def _parse_error_context(self, text:str, error:pycparser.c_parser.ParseError, filename=None):
+		match = re.match(r"\s*(.*?)\s*:\s*([0-9]*?)\s*:\s*([0-9]*?)\s*:\s*(.*)", str(error))
+		if filename == None:
+			filename = match.group(1)
+		row = int(match.group(2)) - 1
+		column = int(match.group(3)) - 1
+
+		context = ""
+		prevRowStart = max(row - ERROR_CONTEXT_PREV_LINE_COUNT, 0)
+		postRowStart = row + ERROR_CONTEXT_POST_LINE_COUNT
+		with open(filename) as fp:
+			for i, line in enumerate(fp):
+				if i == row:
+					context += f">{line[:-1]}\n"
+					context += f"{'-' * (column + 1)}^{'-' * (len(line) - column - 2)}\n"
+				elif i >= prevRowStart and i <= postRowStart:
+					context += f"{line[:-1]}\n"
+		return context
