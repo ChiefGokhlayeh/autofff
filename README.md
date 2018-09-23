@@ -1,9 +1,11 @@
 # AutoFFF
+
 Auto-generate [FFF](https://github.com/meekrosoft/fff) fake definitions for C API header files.
 
 Incorporate the script into your normal build environment (like _make_) and automatically generate test-headers with faked function definitions ready-to-use with [FFF](https://github.com/meekrosoft/fff)'s own _gtest_ or some other unit-testing-framework.
 
 ## The Idea Behind Faking
+
 Especially in the embedded world, running your (unit-)tests against the actual target platform often isn't feasible, as the architecture you're executing the test on and your target platform you're writing the code for are generally not the same.
 
 This is where faking a specific platform API might help you. Instead of calling the actual target platform API, you link your code-under-test (CuT) against a faked version of said API. Now whenever your CuT tries to access the platform API it is instead calling the fake-implementation which you can easily configure in your test-cases' setup phase.
@@ -15,31 +17,40 @@ The problem with faking an API in embedded C is usually the infeasibility of usi
 Introducing [*AutoFFF*](https://github.com/FreeGeronimo/autofff), an attempt at automating the process of writing so called test-headers (headers which include the faked definitions).
 
 ### Two Philosophies of Faking
+
 When writing fakes you will notice that there are two approaches of laying out your fake.
+
 1. **Banning** the original API header\
-This strategy *bans* the original header by defining the API headers include guard, making it impossible to include the original function, variable and type declarations. This gives you ultimate freedom in the test-header, but also means that you will have to manually declare any types, functions and variables the API-user might expect. It also allows you to control the include hierarchy and maybe skip some headers which aren't compatible with your test-runner's architecture. In general this approach usually involves a lot of copy&pasting and is therefore more prone to *"code rot"*. Not the optimal strategy if you're looking for an easy-to-maintain way of managing test-headers.
+    This strategy *bans* the original header by defining the API headers include guard, making it impossible to include the original function, variable and type declarations. This gives you ultimate freedom in the test-header, but also means that you will have to manually declare any types, functions and variables the API-user might expect. It also allows you to control the include hierarchy and maybe skip some headers which aren't compatible with your test-runner's architecture. In general this approach usually involves a lot of copy&pasting and is therefore more prone to *"code rot"*. Not the optimal strategy if you're looking for an easy-to-maintain way of managing test-headers.
 1. **Wrapping** the original API header\
-Conversely to the banning method the *wrapping* strategy directly includes the original API header, and thereby imports any type, variable and function declarations. Also the include hierarchy is taken over from the original. The only thing to add into the test-header are the fake definitions. This method evidently grants you less freedom in the test-header, but usually is much shorter and slightly less prone to *"rot"* over time.
+    Conversely to the banning method the *wrapping* strategy directly includes the original API header, and thereby imports any type, variable and function declarations. Also the include hierarchy is taken over from the original. The only thing to add into the test-header are the fake definitions. This method evidently grants you less freedom in the test-header, but usually is much shorter and slightly less prone to *"rot"* over time.
 
 It should become obvious which method is better suited for automation. Therefore *AutoFFF* follows the *wrapping* approach of writing test-headers, which for most cases should be good enough.
 
 Finally it must be stated, that these two philosophies seldomly mix well.
 
 ## Usage
+
 ### As a Standalone Script
+
 To run the example:
+
 ```shell
-$ py -3.6 autofff.py
-    ./examples/driver.h
-    -O ./output/driver_th.h
-    -I ./examples
+py -3.6 autofff.py \
+    ./examples/driver.h \
+    -O ./output/driver_th.h \
+    -I ./examples \
     -F ./dependencies/pycparser/utils/fake_libc_include
 ```
+
 ### Running the Make Example
+
 ```shell
-$ make -f examples/generate_fakes.mk CRAWL_PATHS=examples
+make -f examples/generate_fakes.mk CRAWL_PATHS=examples
 ```
+
 ### As a Python Package
+
 ```python
 import autofff
 
@@ -63,16 +74,20 @@ with open(outputHeader, "w") as fs:
 ```
 
 ## How Fakes Are Generated
+
 The format of the generated test-header obviously depends on the specifics of the `FakeGenerator` being used.
+
 1. The `BareFakeGenerator` will only generate the `FAKE_VALUE_`- and `FAKE_VOID_FUNC` macros without any decorations, like include guards or header includes. Use this generator if you want to add your own file (shell-based) processing on top.
 2. The `SimpleFakeGenerator` will generate a "minimum viable test header", meaning the result should be compilable without too much effort.
 
 ### In-Header Defined Functions
+
 In some API headers functions may be defined within the header. This will cause issues when trying to fake this function, because by including the header the function definition is copied into each translation unit. If we try to apply a fake definition the usual way, we will end up with a _"redefinition of function *x*"_ error.
 
 *AutoFFF* implements a workaround to avoid this redefinition error and allowing to fake the original function. This workaround simply consists of some defines which will re-route any call to the original in-header definition to our faked one. For this to work it is required that the test-header is included (and thereby pre-processed) _before_ any function call to the function under consideration is instructed, i.e. the test-header must be included _before_ the CuT. Any function call that is processed before the workaround is being pre-processed will leave this function call targeted towards the original in-header definition.
 
 In practice the workaround looks like this:
+
 ```c
 /* api.h */
 #ifndef API_HEADER_H_
@@ -85,6 +100,7 @@ const char* foo(void)
 
 #endif
 ```
+
 ```c
 /* api_th.h */
 #ifndef TEST_HEADER_H_
@@ -103,6 +119,7 @@ FAKE_VOID_FUNC(foo);
 
 #endif
 ```
+
 ```c
 /* cut.c - code-under-test */
 #include "api.h"
@@ -114,6 +131,7 @@ const char* bar(void)
     return str;
 }
 ```
+
 ```c
 /* test.c */
 #include "fff.h"
