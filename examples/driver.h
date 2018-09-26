@@ -26,7 +26,7 @@ void Driver_Initialize(volatile const Hardware* const hardware, Driver_EventCall
 volatile const Hardware* Driver_GetHardware(void);
 
 /* Showcasing pointers */
-size_t Driver_Write(const uint8_t* buffer, size_t size);
+size_t Driver_Write(const uint8_t* buffer, const size_t size);
 
 /* Showcasing out-parameter pointers */
 void Driver_GrabBuffer(const uint8_t** buffer, size_t* size);

@@ -50,9 +50,10 @@ def _get_type_name_enum(enum:Enum):
 def _get_type_name_identifiertype(identifiertype:IdentifierType):
 	return CGenerator().visit_IdentifierType(identifiertype)
 
-def _get_type_name_typedecl(typedecl:TypeDecl):
-	if len(typedecl.quals) > 0:
-		quals = ' '.join(typedecl.quals) + ' '
+def _get_type_name_typedecl(typedecl:TypeDecl, omitConst:bool=False):
+	quals = list(filter(lambda q: not omitConst or q != 'const', typedecl.quals))
+	if len(quals) > 0:
+		quals = ' '.join(quals) + ' '
 	else:
 		quals = ''
 	if isinstance(typedecl.type, IdentifierType):
@@ -67,16 +68,16 @@ def _get_type_name_typedecl(typedecl:TypeDecl):
 		raise ValueError(f"Unknown type {type(typedecl.type)}")
 	return f'{quals}{names}'
 
-def _get_type_name_ptrdecl(ptrdecl:PtrDecl):
+def _get_type_name_ptrdecl(ptrdecl:PtrDecl, omitConst:bool=False):
 	if is_function_pointer_type(ptrdecl):
 		if ptrdecl.type.args is not None:
 			params = ', '.join(
-				[ get_type_name(param) for param in ptrdecl.type.args.params ])
+				[ get_type_name(param, omitConst=False) for param in ptrdecl.type.args.params ])
 		else:
 			params = ''
 		return f'{_get_type_name_funcdecl(ptrdecl.type)} (*)({params})'
 	else:
-		if len(ptrdecl.quals) > 0:
+		if len(ptrdecl.quals) > 0 and not omitConst:
 			quals = ' ' + ' '.join(ptrdecl.quals)
 		else:
 			quals = ''
@@ -92,7 +93,7 @@ def _get_type_name_funcdecl(funcDecl:FuncDecl):
 	if isinstance(funcDecl.type, PtrDecl):
 		return _get_type_name_ptrdecl(funcDecl.type)
 	elif isinstance(funcDecl.type, TypeDecl):
-		return _get_type_name_typedecl(funcDecl.type)
+		return _get_type_name_typedecl(funcDecl.type, omitConst=True)
 	else:
 		raise ValueError(f"Unknown type {type(funcDecl.type)}")
 
@@ -105,11 +106,11 @@ def _get_type_name_arraydecl(arraydecl:ArrayDecl):
 		raise ValueError(f"Unknown type {type(arraydecl.type)}")
 	return f'{name}*'
 
-def get_type_name(decl:Decl):
+def get_type_name(decl:Decl, omitConst:bool=True):
 	if isinstance(decl.type, TypeDecl):
-		return _get_type_name_typedecl(decl.type)
+		return _get_type_name_typedecl(decl.type, omitConst=omitConst)
 	elif isinstance(decl.type, PtrDecl):
-		return _get_type_name_ptrdecl(decl.type)
+		return _get_type_name_ptrdecl(decl.type, omitConst=omitConst)
 	elif isinstance(decl.type, FuncDecl):
 		return _get_type_name_funcdecl(decl.type)
 	elif isinstance(decl.type, ArrayDecl):
