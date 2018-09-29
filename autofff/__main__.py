@@ -7,7 +7,9 @@ import autofff.scanner as scanner
 import autofff.generator as generator
 
 def main():
-	parser = ArgumentParser()
+	parser = ArgumentParser(
+		prog='autofff',
+		description="Auto-generate FFF fake definitions for C API header files")
 	parser.add_argument('header',
 		type=str,
 		help="Path of c-header file to generate fff-fakes for.")

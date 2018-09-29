@@ -68,5 +68,5 @@ run:
 
 $(OUTPUT_DIR)/%_th.h: $(EXAMPLES_DIR)/%.h
 	@echo "Generating test-header: $<"
-	python3 $(AUTOFFF_DIR)/autofff.py -O $(abspath $@) $(TEST_INCLUDES) -F $(DEPENDENCIES_DIR)/pycparser/utils/fake_libc_include $<
+	python3 $(AUTOFFF_DIR) -O $(abspath $@) $(TEST_INCLUDES) -F $(DEPENDENCIES_DIR)/pycparser/utils/fake_libc_include $<
 	@echo
