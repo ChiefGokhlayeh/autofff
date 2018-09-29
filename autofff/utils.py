@@ -11,46 +11,46 @@ if __name__ == "__main__":
 	LOGGER.error("Module is not intended to run as '__main__'!")
 	sys.exit(1)
 
-def format_as_includes(includes:list):
+def format_as_includes(includes:list)->list:
 	if includes is None:
 		return list()
 	else:
 		return [format_as_include(element) for element in includes]
 
-def format_as_include_files(fileInclude:list):
+def format_as_include_files(fileInclude:list)->list:
 	if fileInclude is None:
 		return list()
 	else:
 		return [format_as_include_file(element) for element in fileInclude]
 
-def format_as_include(include:str):
+def format_as_include(include:str)->str:
 	return f"-I{include.strip()}"
 
-def format_as_include_file(fileInclude:str):
+def format_as_include_file(fileInclude:str)->str:
 	return f"-include{fileInclude.strip()}"
 
-def format_as_defines(defines:list):
+def format_as_defines(defines:list)->list:
 	if defines is None:
 		return list()
 	else:
 		return [format_as_define(element) for element in defines]
 
-def format_as_define(define:str):
+def format_as_define(define:str)->str:
 	return f"-D{define.strip()}"
 
-def _get_type_name_struct(struct:Struct):
+def _get_type_name_struct(struct:Struct)->str:
 	return CGenerator().visit_Struct(struct).replace('\n', '')
 
-def _get_type_name_union(union:Union):
+def _get_type_name_union(union:Union)->str:
 	return CGenerator().visit_Union(union).replace('\n', '')
 
-def _get_type_name_enum(enum:Enum):
+def _get_type_name_enum(enum:Enum)->str:
 	return CGenerator().visit_Enum(enum)
 
-def _get_type_name_identifiertype(identifiertype:IdentifierType):
+def _get_type_name_identifiertype(identifiertype:IdentifierType)->str:
 	return CGenerator().visit_IdentifierType(identifiertype)
 
-def _get_type_name_typedecl(typedecl:TypeDecl, omitConst:bool=False):
+def _get_type_name_typedecl(typedecl:TypeDecl, omitConst:bool=False)->str:
 	quals = list(filter(lambda q: not omitConst or q != 'const', typedecl.quals))
 	if len(quals) > 0:
 		quals = ' '.join(quals) + ' '
@@ -68,7 +68,7 @@ def _get_type_name_typedecl(typedecl:TypeDecl, omitConst:bool=False):
 		raise ValueError(f"Unknown type {type(typedecl.type)}")
 	return f'{quals}{names}'
 
-def _get_type_name_ptrdecl(ptrdecl:PtrDecl, omitConst:bool=False):
+def _get_type_name_ptrdecl(ptrdecl:PtrDecl, omitConst:bool=False)->str:
 	if is_function_pointer_type(ptrdecl):
 		if ptrdecl.type.args is not None:
 			params = ', '.join(
@@ -89,7 +89,7 @@ def _get_type_name_ptrdecl(ptrdecl:PtrDecl, omitConst:bool=False):
 			raise ValueError(f"Unknown type {type(ptrdecl.type)}")
 		return f'{name}*{quals}'
 
-def _get_type_name_funcdecl(funcDecl:FuncDecl):
+def _get_type_name_funcdecl(funcDecl:FuncDecl)->str:
 	if isinstance(funcDecl.type, PtrDecl):
 		return _get_type_name_ptrdecl(funcDecl.type)
 	elif isinstance(funcDecl.type, TypeDecl):
@@ -97,7 +97,7 @@ def _get_type_name_funcdecl(funcDecl:FuncDecl):
 	else:
 		raise ValueError(f"Unknown type {type(funcDecl.type)}")
 
-def _get_type_name_arraydecl(arraydecl:ArrayDecl):
+def _get_type_name_arraydecl(arraydecl:ArrayDecl)->str:
 	if isinstance(arraydecl.type, PtrDecl):
 		name = _get_type_name_ptrdecl(arraydecl.type)
 	elif isinstance(arraydecl.type, TypeDecl):
@@ -106,7 +106,7 @@ def _get_type_name_arraydecl(arraydecl:ArrayDecl):
 		raise ValueError(f"Unknown type {type(arraydecl.type)}")
 	return f'{name}*'
 
-def get_type_name(decl:Decl, omitConst:bool=True):
+def get_type_name(decl:Decl, omitConst:bool=True)->str:
 	if isinstance(decl.type, TypeDecl):
 		return _get_type_name_typedecl(decl.type, omitConst=omitConst)
 	elif isinstance(decl.type, PtrDecl):
@@ -118,9 +118,9 @@ def get_type_name(decl:Decl, omitConst:bool=True):
 	else:
 		raise ValueError(f"Unknown type {type(decl.type)}")
 
-def is_function_pointer_type(ptrdecl:PtrDecl):
+def is_function_pointer_type(ptrdecl:PtrDecl)->bool:
 	return isinstance(ptrdecl.type, FuncDecl)
 
-def create_typedef_name_for_fnc_ptr(decl:Decl, param:Decl):
+def create_typedef_name_for_fnc_ptr(decl:Decl, param:Decl)->str:
 	index = decl.type.args.params.index(param)
 	return f"fff_{decl.name}_param{index}"

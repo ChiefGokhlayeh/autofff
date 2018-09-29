@@ -21,21 +21,21 @@ if __name__ == "__main__":
 	sys.exit(1)
 
 class FakeGenerator(ABC):
-	def __init__(self):
+	def __init__(self)->None:
 		self.cGen = pycparser.c_generator.CGenerator()
 
 	@abstractmethod
-	def generate(self, result:scanner.ScannerResult, output:io.IOBase):
+	def generate(self, result:scanner.ScannerResult, output:io.IOBase)->None:
 		pass
 
 class TemplatedFakeGenerator(FakeGenerator):
 	pass
 
 class BareFakeGenerator(FakeGenerator):
-	def __init__(self):
+	def __init__(self)->None:
 		super().__init__()
 
-	def _generateTypeDefForDecl(self, decl:Decl):
+	def _generateTypeDefForDecl(self, decl:Decl)->str:
 		typedefs = ''
 		for param in filter(
 			lambda p: utils.is_function_pointer_type(p.type),
@@ -49,14 +49,14 @@ class BareFakeGenerator(FakeGenerator):
 			typedefs += f"{self.cGen.visit_Typedef(typedef)};\n"
 		return typedefs
 
-	def _generateBypassForFuncDef(self, funcDef:FuncDef):
+	def _generateBypassForFuncDef(self, funcDef:FuncDef)->str:
 		funcName = funcDef.decl.name
 		bypass = f"#define {funcName} {funcName}_fff\n"
 		bypass += f"#define {funcName}_fake {funcName}_fff_fake\n"
 		bypass += f"#define {funcName}_reset {funcName}_fff_reset\n"
 		return bypass
 
-	def _generateFakeForDecl(self, decl:Decl):
+	def _generateFakeForDecl(self, decl:Decl)->str:
 		funcName = decl.name
 		returnType = utils.get_type_name(decl.type)
 		if any(map(lambda p: isinstance(p, EllipsisParam), decl.type.args.params)):
@@ -80,7 +80,7 @@ class BareFakeGenerator(FakeGenerator):
 		return fake
 
 	@overrides
-	def generate(self, result:scanner.ScannerResult, output:io.IOBase):
+	def generate(self, result:scanner.ScannerResult, output:io.IOBase)->None:
 		for decl in filter(
 				lambda decl: decl.type.args is not None and any(map(
 					lambda param: (not isinstance(param, EllipsisParam) and
@@ -106,7 +106,7 @@ class BareFakeGenerator(FakeGenerator):
 			output.write(self._generateFakeForDecl(definition.decl))
 
 class SimpleFakeGenerator(BareFakeGenerator):
-	def __init__(self, fakeName:str, originalHeader:str, includeFiles:list=None, generateIncludeGuard:bool=True):
+	def __init__(self, fakeName:str, originalHeader:str, includeFiles:list=None, generateIncludeGuard:bool=True)->None:
 		super().__init__()
 		self.fakeName = fakeName
 		self.originalHeader = originalHeader
@@ -114,7 +114,7 @@ class SimpleFakeGenerator(BareFakeGenerator):
 		self.generateIncludeGuard = generateIncludeGuard
 
 	@overrides
-	def generate(self, result:scanner.ScannerResult, output:io.IOBase):
+	def generate(self, result:scanner.ScannerResult, output:io.IOBase)->None:
 		incGuard = os.path.splitext(os.path.basename(self.fakeName.upper()))[0]
 		if incGuard[0].isdigit():
 			incGuard = '_' + incGuard

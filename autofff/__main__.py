@@ -6,7 +6,7 @@ import sys
 import autofff.scanner as scanner
 import autofff.generator as generator
 
-def main():
+def main()->None:
 	parser = ArgumentParser(
 		prog='autofff',
 		description="Auto-generate FFF fake definitions for C API header files")
