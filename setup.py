@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='autofff',
-      version='0.1_1',
+      version='0.2',
       description='Auto-generate FFF fake definitions for C API header files',
       long_description=long_description,
       long_description_content_type="text/markdown",
