@@ -1,4 +1,4 @@
-# AutoFFF
+# AutoFFF [![Build Status](https://travis-ci.org/FreeGeronimo/autofff.svg?branch=master)](https://travis-ci.org/FreeGeronimo/autofff)
 
 Auto-generate [FFF](https://github.com/meekrosoft/fff) fake definitions for C API header files.
 
