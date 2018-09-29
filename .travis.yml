@@ -4,4 +4,4 @@ python:
 install:
 - pip install -r requirements.txt
 script:
-- make -C test all
+- make all
