@@ -29,21 +29,47 @@ It should become obvious which method is better suited for automation. Therefore
 
 Finally it must be stated, that these two philosophies seldomly mix well.
 
-## Usage
+## Installation
 
-### As a Standalone Script
-
-To run the example:
+Use `pip` to download and install *AutoFFF* from the [PyPi](https://pypi.org/project/autofff/) repositories:
 
 ```shell
-py -3.6 autofff.py \
+py -3.6 -m pip install autofff
+```
+
+Or install from source:
+
+```shell
+py -3.6 -m pip install .
+```
+
+## Usage
+
+### As a Module
+
+```shell
+py -3.6 -m autofff \
     ./examples/driver.h \
     -O ./output/driver_th.h \
     -I ./examples \
     -F ./dependencies/pycparser/utils/fake_libc_include
 ```
 
-### Running the Make Example
+### Using the provided Makefile
+
+To run build and run the tests, simply execute:
+
+```shell
+make run_tests
+```
+
+You can also let the makefile do the installation of *AutoFFF* for you.
+
+```shell
+make install_autofff
+```
+
+### Running the 'Generate Fakes' Example
 
 ```shell
 make -f examples/generate_fakes.mk CRAWL_PATHS=examples
