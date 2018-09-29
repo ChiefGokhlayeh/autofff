@@ -1,5 +1,5 @@
 # Paths
-ROOT_DIR = $(CURDIR)/..
+ROOT_DIR = $(CURDIR)
 AUTOFFF_DIR = $(ROOT_DIR)/autofff
 TEST_DIR = $(ROOT_DIR)/test
 EXAMPLES_DIR = $(ROOT_DIR)/examples
@@ -23,9 +23,9 @@ TEST_FAKES = $(patsubst $(EXAMPLES_DIR)/%,$(OUTPUT_DIR)/%,$(TEST_HEADERS:%.h=%_t
 # Prevent make from deleting fakes as 'intermediate' files
 .PRECIOUS: $(TEST_FAKES)
 
-all: run
-build: gtest_lib $(TEST_EXES)
-run: build
+all: install_autofff run_tests
+run_tests: build_tests
+build_tests: build_gtest_lib $(TEST_EXES)
 
 .PHONY: install_autofff
 install_autofff:
@@ -33,7 +33,7 @@ install_autofff:
 	@echo
 
 .PHONY: gtest_lib
-gtest_lib:
+build_gtest_lib:
 	mkdir -p $(FFF_DIR)/build
 	$(MAKE) -C $(FFF_DIR)/gtest all
 	@echo
@@ -61,14 +61,14 @@ uninstall_autofff:
 .PHONY: clean
 clean: clean_autofff clean_gtest clean_unittest uninstall_autofff
 
-$(OUTPUT_DIR)/%.exe: %.cc $(TEST_FAKES)
+$(OUTPUT_DIR)/%.exe: $(TEST_DIR)/%.cc $(TEST_FAKES)
 	@echo "Building file: $<"
 	@echo "Invoking GCC C++ Suite"
 	g++ -pthread $(TEST_INCLUDES) $(GTEST_OBJS) $< -o $@
 	@echo "Finished building: $<"
 	@echo
 
-run:
+run_tests:
 	@$(foreach exe,$(TEST_EXES),\
 		echo "Executing Test: $(exe)"; \
 		$(exe); \
