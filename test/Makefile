@@ -27,6 +27,11 @@ all: run
 build: gtest_lib $(TEST_EXES)
 run: build
 
+.PHONY: install_autofff
+install_autofff:
+	python3 -m pip install $(ROOT_DIR)
+	@echo
+
 .PHONY: gtest_lib
 gtest_lib:
 	mkdir -p $(FFF_DIR)/build
@@ -48,8 +53,13 @@ clean_unittest:
 	$(RM) $(TEST_EXES)
 	@echo
 
+.PHONY: uninstall_autofff
+uninstall_autofff:
+	python -m pip uninstall $(ROOT_DIR)
+	@echo
+
 .PHONY: clean
-clean: clean_autofff clean_gtest clean_unittest
+clean: clean_autofff clean_gtest clean_unittest uninstall_autofff
 
 $(OUTPUT_DIR)/%.exe: %.cc $(TEST_FAKES)
 	@echo "Building file: $<"
@@ -66,7 +76,7 @@ run:
 		echo \
 	)
 
-$(OUTPUT_DIR)/%_th.h: $(EXAMPLES_DIR)/%.h
+$(OUTPUT_DIR)/%_th.h: $(EXAMPLES_DIR)/%.h install_autofff
 	@echo "Generating test-header: $<"
-	python3 $(AUTOFFF_DIR) -O $(abspath $@) $(TEST_INCLUDES) -F $(DEPENDENCIES_DIR)/pycparser/utils/fake_libc_include $<
+	python3 -m autofff -O $(abspath $@) $(TEST_INCLUDES) -F $(DEPENDENCIES_DIR)/pycparser/utils/fake_libc_include $<
 	@echo
