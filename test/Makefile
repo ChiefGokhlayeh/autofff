@@ -1,5 +1,6 @@
 # Paths
 ROOT_DIR = $(CURDIR)/..
+AUTOFFF_DIR = $(ROOT_DIR)/autofff
 TEST_DIR = $(ROOT_DIR)/test
 EXAMPLES_DIR = $(ROOT_DIR)/examples
 OUTPUT_DIR = $(ROOT_DIR)/output
@@ -67,5 +68,5 @@ run:
 
 $(OUTPUT_DIR)/%_th.h: $(EXAMPLES_DIR)/%.h
 	@echo "Generating test-header: $<"
-	python3 ../autofff.py -O $(abspath $@) $(TEST_INCLUDES) -F $(DEPENDENCIES_DIR)/pycparser/utils/fake_libc_include $<
+	python3 $(AUTOFFF_DIR)/autofff.py -O $(abspath $@) $(TEST_INCLUDES) -F $(DEPENDENCIES_DIR)/pycparser/utils/fake_libc_include $<
 	@echo

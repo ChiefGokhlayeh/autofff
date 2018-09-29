@@ -1,5 +1,5 @@
-import utils
-import scanner
+import autofff.utils as utils
+import autofff.scanner as scanner
 
 from abc import ABC, abstractmethod
 import io

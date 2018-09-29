@@ -3,8 +3,8 @@ import logging
 import os.path
 import sys
 
-import scanner
-import generator
+import autofff.scanner as scanner
+import autofff.generator as generator
 
 def main():
 	parser = ArgumentParser()
