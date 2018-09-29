@@ -1,5 +1,7 @@
 import autofff.utils as utils
 import autofff.scanner as scanner
+import autofff.config as c
+from autofff.config import CONFIG
 
 from abc import ABC, abstractmethod
 import io
@@ -106,12 +108,15 @@ class BareFakeGenerator(FakeGenerator):
 			output.write(self._generateFakeForDecl(definition.decl))
 
 class SimpleFakeGenerator(BareFakeGenerator):
-	def __init__(self, fakeName:str, originalHeader:str, includeFiles:list=None, generateIncludeGuard:bool=True)->None:
+	def __init__(self, fakeName:str, originalHeader:str, includeFiles:list=None, generateIncludeGuard:bool=None)->None:
 		super().__init__()
 		self.fakeName = fakeName
 		self.originalHeader = originalHeader
 		self.includeFiles = includeFiles
-		self.generateIncludeGuard = generateIncludeGuard
+		if generateIncludeGuard == None:
+			self.generateIncludeGuard = CONFIG[c.AUTOFFF_SECTION][c.SIMPLE_GENERATOR_SECTION][c.SIMPLE_GENERATOR_GENERATE_INCLUDE_GUARD]
+		else:
+			self.generateIncludeGuard = generateIncludeGuard
 
 	@overrides
 	def generate(self, result:scanner.ScannerResult, output:io.IOBase)->None:

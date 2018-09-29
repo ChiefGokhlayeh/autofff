@@ -1,4 +1,6 @@
 import autofff.utils as utils
+import autofff.config as c
+from autofff.config import CONFIG
 
 from abc import ABCMeta, abstractmethod
 import logging
@@ -12,22 +14,6 @@ from overrides import overrides
 import pycparser
 from pycparser import parse_file
 
-GCC_PATH = 'gcc'
-GCC_SPECIFIC_MACROS = [
-	r'-D__attribute__(x)=',
-	r'-D__asm__(x)=',
-	r'-D__const=',
-	r'-D__const__=',
-	r'-D__restrict=',
-	r'-D__restrict__=',
-	r'-D__extension__=',
-	r'-D__inline=',
-	r'-D__forcedinline=',
-	r'-D__inline__=',
-]
-GCC_SPECIFIC_IGNORE_PATTERN = r"([\s\n]*(__asm|asm)[\s\n]*(volatile|[\s\n]*)(goto|[\s\n]*)(.|\n|;)*?;)"
-ERROR_CONTEXT_PREV_LINE_COUNT = 5
-ERROR_CONTEXT_POST_LINE_COUNT = 5
 LOGGER = logging.getLogger(__name__)
 
 if __name__ == "__main__":
@@ -108,18 +94,30 @@ class Scanner(metaclass=ABCMeta):
 
 class GCCScanner(Scanner):
 	def __init__(self, targetHeader:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None)->None:
-		super().__init__(targetHeader, fakes, includes, includeFiles, defines, GCC_SPECIFIC_IGNORE_PATTERN)
+		super().__init__(
+			targetHeader,
+			fakes,
+			includes,
+			includeFiles,
+			defines,
+			CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_NON_STANDARD_IGNORE_PATTERN])
 
 	@overrides
 	def _call_parse(self, pathToHeader:str)->pycparser.c_ast.FileAST:
-		cppArgs = (['-E'] + GCC_SPECIFIC_MACROS +
-			utils.format_as_includes(self.fakes) +
-			utils.format_as_includes(self.includes) +
-			utils.format_as_include_files(self.includeFiles) +
-			utils.format_as_defines(self.defines))
+		cppArgs = (
+			CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_CPP_ARGS]
+			+ format_as_includes(self.fakes)
+			+ format_as_includes(self.includes)
+			+ format_as_include_files(self.includeFiles)
+			+ format_as_defines(self.defines)
+		)
 
 		LOGGER.debug(f"GCC args for parsing: {', '.join(cppArgs)}")
-		return self._parse_file(pathToHeader, use_cpp=True, cpp_path=GCC_PATH, cpp_args=cppArgs)
+		return self._parse_file(
+			pathToHeader,
+			use_cpp=True,
+			cpp_path=CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_CPP_PATH],
+			cpp_args=cppArgs)
 
 	def _preprocess_file(self, filename:str, cpp_path:str='cpp', cpp_args:str='')->str:
 		path_list = [cpp_path]
@@ -172,8 +170,8 @@ class GCCScanner(Scanner):
 		column = int(match.group(3)) - 1
 
 		context = f">Caused in file: {filename}\n"
-		prevRowStart = max(row - ERROR_CONTEXT_PREV_LINE_COUNT, 0)
-		postRowStart = row + ERROR_CONTEXT_POST_LINE_COUNT
+		prevRowStart = max(row - CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_ERROR_CONTEXT_PREV_LINES], 0)
+		postRowStart = row + CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_ERROR_CONTEXT_POST_LINES]
 		with open(filename) as fp:
 			for i, line in enumerate(fp):
 				if i == row:
@@ -182,3 +180,30 @@ class GCCScanner(Scanner):
 				elif i >= prevRowStart and i <= postRowStart:
 					context += f"{line[:-1]}\n"
 		return context
+
+def format_as_includes(includes:list)->list:
+	if includes is None:
+		return list()
+	else:
+		return [format_as_include(element) for element in includes]
+
+def format_as_include_files(fileInclude:list)->list:
+	if fileInclude is None:
+		return list()
+	else:
+		return [format_as_include_file(element) for element in fileInclude]
+
+def format_as_include(include:str)->str:
+	return f"{CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_CPP_INCLUDE_DIR_PREFIX]}{include.strip()}"
+
+def format_as_include_file(fileInclude:str)->str:
+	return f"{CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_CPP_INCLUDE_FILE_PREFIX]}{fileInclude.strip()}"
+
+def format_as_defines(defines:list)->list:
+	if defines is None:
+		return list()
+	else:
+		return [format_as_define(element) for element in defines]
+
+def format_as_define(define:str)->str:
+	return f"{CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_CPP_DEFINE_PREFIX]}{define.strip()}"

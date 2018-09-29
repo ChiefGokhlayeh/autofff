@@ -5,13 +5,28 @@
             "name": "Python",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/autofff.py",
+            "program": "${workspaceFolder}/autofff",
             "stopOnEntry": true,
             "args": [
                 "-O output/driver_th.h",
                 "-I examples",
                 "-F dependencies/pycparser/utils/fake_libc_include",
                 "--debug",
+                "examples/driver.h"
+            ]
+        },
+        {
+            "name": "Python - with config",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/autofff",
+            "stopOnEntry": true,
+            "args": [
+                "-O output/driver_th.h",
+                "-I examples",
+                "-F dependencies/pycparser/utils/fake_libc_include",
+                "--debug",
+                "-c config.ini",
                 "examples/driver.h"
             ]
         }

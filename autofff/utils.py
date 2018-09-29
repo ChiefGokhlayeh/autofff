@@ -11,33 +11,6 @@ if __name__ == "__main__":
 	LOGGER.error("Module is not intended to run as '__main__'!")
 	sys.exit(1)
 
-def format_as_includes(includes:list)->list:
-	if includes is None:
-		return list()
-	else:
-		return [format_as_include(element) for element in includes]
-
-def format_as_include_files(fileInclude:list)->list:
-	if fileInclude is None:
-		return list()
-	else:
-		return [format_as_include_file(element) for element in fileInclude]
-
-def format_as_include(include:str)->str:
-	return f"-I{include.strip()}"
-
-def format_as_include_file(fileInclude:str)->str:
-	return f"-include{fileInclude.strip()}"
-
-def format_as_defines(defines:list)->list:
-	if defines is None:
-		return list()
-	else:
-		return [format_as_define(element) for element in defines]
-
-def format_as_define(define:str)->str:
-	return f"-D{define.strip()}"
-
 def _get_type_name_struct(struct:Struct)->str:
 	return CGenerator().visit_Struct(struct).replace('\n', '')
 

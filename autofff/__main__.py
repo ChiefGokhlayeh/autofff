@@ -5,6 +5,17 @@ import sys
 
 import autofff.scanner as scanner
 import autofff.generator as generator
+import autofff.config as c
+from autofff.config import CONFIG
+
+SCANNER_TYPES = {
+	c.GCC_SCANNER_TYPE: lambda *args, **kwargs: scanner.GCCScanner(*args, **kwargs)
+	}
+
+GENERATOR_TYPES = {
+	c.BARE_GENERATOR_TYPE: lambda *args, **kwargs: generator.BareFakeGenerator(),
+	c.SIMPLE_GENERATOR_TYPE: lambda *args, **kwargs: generator.SimpleFakeGenerator(*args, **kwargs)
+}
 
 def main()->None:
 	parser = ArgumentParser(
@@ -41,6 +52,12 @@ def main()->None:
 		required=False,
 		action='append',
 		dest='defines')
+	parser.add_argument('-c', '--config',
+		type=str,
+		help="Path to a configuration file.",
+		default="",
+		required=False,
+		dest='config')
 	parser.add_argument('--debug',
 		help="Print various types of debugging information.",
 		action='store_const',
@@ -60,25 +77,30 @@ def main()->None:
 
 	logger.debug(f"Provided cmd-args: {', '.join(sys.argv[1:])}.")
 
-	filename, fileext = os.path.splitext(args.header)
+	c.load(args.config.strip())
+
+	_, fileext = os.path.splitext(args.header)
 	if fileext != '.h':
 		logger.warning(f"Detected non-standard header file extension '{fileext}' (expected '.h'-file).")
 
-	scnr = scanner.GCCScanner(
+	scannerType = CONFIG[c.AUTOFFF_SECTION][c.SCANNER_TYPE]
+	scnr = SCANNER_TYPES[scannerType](
 		targetHeader=args.header,
 		fakes=args.fakes,
 		includes=args.includes,
 		includeFiles=args.includeFiles,
-		defines=args.defines)
+		defines=args.defines
+	)
+	generatorType = CONFIG[c.AUTOFFF_SECTION][c.GENERATOR_TYPE]
+	gen = GENERATOR_TYPES[generatorType](
+		os.path.splitext(os.path.basename(args.output))[0],
+		args.header,
+		args.includeFiles
+	)
 
 	result = scnr.scan()
 	logger.info(f"Function declarations found: {', '.join( [ f.name for f in result.declarations ])}.")
 	logger.info(f"Function definitions found: {', '.join( [ f.decl.name for f in result.definitions ])}.")
-
-	gen = generator.SimpleFakeGenerator(
-		os.path.splitext(os.path.basename(args.output))[0],
-		args.header,
-		args.includeFiles)
 
 	outputFile = args.output.strip()
 	if not os.path.exists(os.path.dirname(outputFile)):
