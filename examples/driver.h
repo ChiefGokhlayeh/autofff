@@ -36,7 +36,7 @@ void Driver_PowerUp(Config (*config_cb)(void* arg));
 
 void Driver_PowerDown(void);
 
-void Driver_Deinitialize(void);
+int Driver_Deinitialize(void);
 
 /* Showcasing inline definition workaround */
 uint16_t Driver_GetRevision(void)

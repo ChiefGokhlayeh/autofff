@@ -1,3 +1,6 @@
 [submodule "dependencies/pycparser"]
 	path = dependencies/pycparser
 	url = https://github.com/eliben/pycparser.git
+[submodule "dependencies/fff"]
+	path = dependencies/fff
+	url = https://github.com/meekrosoft/fff.git
