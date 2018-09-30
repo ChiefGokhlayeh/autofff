@@ -10,10 +10,11 @@ $(error 'CRAWL_PATHS' is undefined! Please pass it as a cmd-line arg or \
 endif
 
 # Optional parameters:
-OUTPUT_PATH?=./output
+ROOT_PATH=$(CURDIR)/../..
+OUTPUT_PATH?=$(ROOT_PATH)/output
 INCLUDE_PATHS?=
 INCLUDE_FILE_PATHS?=
-FAKE_INCLUDE_PATHS?=./dependencies/pycparser/utils/fake_libc_include
+FAKE_INCLUDE_PATHS?=$(ROOT_PATH)/dependencies/pycparser/utils/fake_libc_include
 PYTHON?=py -3.6
 VERBOSE?=0
 
@@ -36,7 +37,7 @@ all: $(OUTPUT_FILE_PATHS)
 
 $(OUTPUT_PATH)/%_th.h: %.h
 	$(V)echo Generating fakes for: $<
-	$(V)PYTHON autofff.py \
+	$(V)$(PYTHON) -m autofff \
 		-O$@ \
 		$(addprefix -I,$(INCLUDE_PATHS)) \
 		$(addprefix -F,$(FAKE_INCLUDE_PATHS)) \

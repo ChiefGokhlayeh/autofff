@@ -2,7 +2,7 @@
 ROOT_DIR = $(CURDIR)
 AUTOFFF_DIR = $(ROOT_DIR)/autofff
 TEST_DIR = $(ROOT_DIR)/test
-EXAMPLES_DIR = $(ROOT_DIR)/examples
+EXAMPLES_DIR = $(ROOT_DIR)/examples/simple-headers
 OUTPUT_DIR = $(ROOT_DIR)/output
 DEPENDENCIES_DIR = $(ROOT_DIR)/dependencies
 FFF_DIR ?= $(DEPENDENCIES_DIR)/fff
