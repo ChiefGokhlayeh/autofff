@@ -1,4 +1,4 @@
-# AutoFFF [![Build Status](https://travis-ci.org/FreeGeronimo/autofff.svg?branch=master)](https://travis-ci.org/FreeGeronimo/autofff)
+# AutoFFF [![Build Status](https://travis-ci.org/FreeGeronimo/autofff.svg?branch=master)](https://travis-ci.org/FreeGeronimo/autofff) [![PyPI version](https://badge.fury.io/py/autofff.svg)](https://badge.fury.io/py/autofff) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 Auto-generate [FFF](https://github.com/meekrosoft/fff) fake definitions for C API header files.
 
