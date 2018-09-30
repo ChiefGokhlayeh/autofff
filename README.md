@@ -72,7 +72,7 @@ make install_autofff
 ### Running the 'Generate Fakes' Example
 
 ```shell
-make -f examples/generate_fakes.mk CRAWL_PATHS=examples
+make -f examples/generate-via-makefile/generate_fakes.mk CRAWL_PATHS=examples
 ```
 
 ### As a Python Package
@@ -86,17 +86,17 @@ targetHeader = input("Enter the path of the header you would like to scan: ")
 outputHeader = input("Enter the path of the target header file which shall be generated: ")
 fakes = './autofff/dependencies/pycparser/utils/fake_libc_include'
 
-scanner = autofff.scanner.GCCScanner(targetHeader, fakes) # Create GCC code scanner
-result = scanner.scan() # Scan for function declarations and definitions
+scnr = autofff.GCCScanner(targetHeader, fakes) # Create GCC code scanner
+result = scnr.scan() # Scan for function declarations and definitions
 
-generator = autofff.generator.SimpleFakeGenerator(os.path.splitext(os.path.basename(outputHeader))[0], targetHeader) # Create new generator with name output-header and path to target-header
+gen = autofff.SimpleFakeGenerator(os.path.splitext(os.path.basename(outputHeader))[0], targetHeader) # Create new generator with name output-header and path to target-header
 
 if not os.path.exists(os.path.dirname(outputHeader)):
     dirname = os.path.dirname(outputHeader)
     os.makedirs(dirname)
 
 with open(outputHeader, "w") as fs:
-    generator.generate(result, fs) # Generate fff-fakes from scanner-result
+    gen.generate(result, fs) # Generate fff-fakes from scanner-result
 ```
 
 ## How Fakes Are Generated
