@@ -86,6 +86,7 @@ CONFIG_SPEC = [
     f"[[{BARE_GENERATOR_SECTION}]]",
 ]
 CONFIG = ConfigObj(configspec=CONFIG_SPEC, raise_errors=True)
+CONFIG.validate(VALIDATOR) # Invoke validator once to get basic structure
 
 def load(filename:str):
     global CONFIG, VALIDATOR
