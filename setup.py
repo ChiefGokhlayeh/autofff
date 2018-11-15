@@ -1,4 +1,5 @@
 from setuptools import setup
+import autofff
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
@@ -7,7 +8,7 @@ with open('requirements.txt', 'r') as fh:
     install_requires = fh.readlines()
 
 setup(name='autofff',
-    version='0.2',
+    version=autofff.__version__,
     description='Auto-generate FFF fake definitions for C API header files',
     long_description=long_description,
     long_description_content_type="text/markdown",

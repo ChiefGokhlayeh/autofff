@@ -3,6 +3,7 @@ import logging
 import os.path
 import sys
 
+import autofff
 import autofff.scanner as scanner
 import autofff.generator as generator
 import autofff.config as c
@@ -70,6 +71,10 @@ def main()->None:
 		action='store_const',
 		dest='logLevel',
 		const=logging.INFO)
+	parser.add_argument('--version',
+		help="Print version info",
+		action='version',
+		version=f"%(prog)s {autofff.__version__}")
 	args = parser.parse_args()
 
 	logging.basicConfig(level=args.logLevel)
