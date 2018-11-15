@@ -125,12 +125,13 @@ class SimpleFakeGenerator(BareFakeGenerator):
 			if incGuard[0].isdigit():
 				incGuard = '_' + incGuard
 
+			fffHeader = os.path.expandvars(CONFIG[c.AUTOFFF_SECTION][c.SIMPLE_GENERATOR_SECTION][c.SIMPLE_GENERATOR_FFF_PATH])
 			incGuard = f"{re.sub('([^A-Z0-9_]*)', '', incGuard)}_H_"
 			LOGGER.debug(f"Generated include guard macro: '{incGuard}'.")
 			incGuardBeginning = [
 				f'#ifndef {incGuard}\n',
 				f'#define {incGuard}\n\n',
-				f'#include "fff.h"\n'
+				f'#include "{fffHeader}"\n'
 			]
 			if self.includeFiles is not None:
 				incGuardBeginning += [ f'#include "{os.path.basename(f)}"\n' for f in self.includeFiles ]
