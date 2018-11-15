@@ -120,24 +120,25 @@ class SimpleFakeGenerator(BareFakeGenerator):
 
 	@overrides
 	def generate(self, result:scanner.ScannerResult, output:io.IOBase)->None:
-		incGuard = os.path.splitext(os.path.basename(self.fakeName.upper()))[0]
-		if incGuard[0].isdigit():
-			incGuard = '_' + incGuard
+		if self.generateIncludeGuard:
+			incGuard = os.path.splitext(os.path.basename(self.fakeName.upper()))[0]
+			if incGuard[0].isdigit():
+				incGuard = '_' + incGuard
 
-		incGuard = f"{re.sub('([^A-Z0-9_]*)', '', incGuard)}_H_"
-		LOGGER.debug(f"Generated include guard macro: '{incGuard}'.")
-		incGuardBeginning = [
-			f'#ifndef {incGuard}\n',
-			f'#define {incGuard}\n\n',
-			f'#include "fff.h"\n'
-		]
-		if self.includeFiles is not None:
-			incGuardBeginning += [ f'#include "{os.path.basename(f)}"\n' for f in self.includeFiles ]
-		incGuardBeginning += f'#include "{os.path.basename(self.originalHeader)}"\n\n'
-		incGuardEnd = [
-			f"\n#endif /* {incGuard} */\n"
-		]
-		output.writelines(incGuardBeginning)
+			incGuard = f"{re.sub('([^A-Z0-9_]*)', '', incGuard)}_H_"
+			LOGGER.debug(f"Generated include guard macro: '{incGuard}'.")
+			incGuardBeginning = [
+				f'#ifndef {incGuard}\n',
+				f'#define {incGuard}\n\n',
+				f'#include "fff.h"\n'
+			]
+			if self.includeFiles is not None:
+				incGuardBeginning += [ f'#include "{os.path.basename(f)}"\n' for f in self.includeFiles ]
+			incGuardBeginning += f'#include "{os.path.basename(self.originalHeader)}"\n\n'
+			incGuardEnd = [
+				f"\n#endif /* {incGuard} */\n"
+			]
+			output.writelines(incGuardBeginning)
 
 		for decl in filter(
 				lambda decl: decl.type.args is not None and any(map(
@@ -165,4 +166,5 @@ class SimpleFakeGenerator(BareFakeGenerator):
 			output.write(self._generateBypassForFuncDef(definition))
 			output.write(self._generateFakeForDecl(definition.decl))
 
-		output.writelines(incGuardEnd)
+		if self.generateIncludeGuard:
+			output.writelines(incGuardEnd)
