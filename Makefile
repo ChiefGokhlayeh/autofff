@@ -20,6 +20,13 @@ TEST_INCLUDES = \
 TEST_HEADERS = $(wildcard $(EXAMPLES_DIR)/*.h)
 TEST_FAKES = $(patsubst $(EXAMPLES_DIR)/%,$(OUTPUT_DIR)/%,$(TEST_HEADERS:%.h=%_th.h))
 
+AUTOFFF_CONFIG ?=
+ifeq ($(AUTOFFF_CONFIG),)
+AUTOFFF_CONFIG_FLAG =
+else
+AUTOFFF_CONFIG_FLAG = -c $(AUTOFFF_CONFIG)
+endif
+
 # Prevent make from deleting fakes as 'intermediate' files
 .PRECIOUS: $(TEST_FAKES)
 
@@ -78,5 +85,5 @@ run_tests:
 
 $(OUTPUT_DIR)/%_th.h: $(EXAMPLES_DIR)/%.h install_autofff
 	@echo "Generating test-header: $<"
-	python3 -m autofff -O $(abspath $@) $(TEST_INCLUDES) -F $(DEPENDENCIES_DIR)/pycparser/utils/fake_libc_include $<
+	python3 -m autofff -O $(abspath $@) $(TEST_INCLUDES) -F $(DEPENDENCIES_DIR)/pycparser/utils/fake_libc_include $(AUTOFFF_CONFIG_FLAG) $<
 	@echo
