@@ -31,8 +31,8 @@ class ScannerResult():
 		self.definitions = definitions
 
 class Scanner(metaclass=ABCMeta):
-	def __init__(self, targetHeader:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None, ignorePattern:str=None)->None:
-		self.targetHeader = targetHeader
+	def __init__(self, inputFile:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None, ignorePattern:str=None)->None:
+		self.inputFile = inputFile
 		self.fakes = fakes
 		self.includes = includes
 		self.includeFiles = includeFiles
@@ -43,7 +43,7 @@ class Scanner(metaclass=ABCMeta):
 			self.ignorePattern = ignorePattern
 
 	def scan(self)->ScannerResult:
-		ast = self._call_parse(self.targetHeader)
+		ast = self._call_parse(self.inputFile)
 		return ScannerResult(tuple(self._mine_function_declarations(ast)), tuple(self._mine_function_definitions(ast)))
 
 	def _mine_function_declarations(self, ast:pycparser.c_ast.FileAST)->list:
@@ -53,7 +53,7 @@ class Scanner(metaclass=ABCMeta):
 			if isinstance(elem, pycparser.c_ast.Decl) and isinstance(elem.type, pycparser.c_ast.FuncDecl):
 				funcName = elem.name
 				header = elem.coord.file
-				if os.path.normpath(header) == os.path.normpath(self.targetHeader):
+				if os.path.normpath(header) == os.path.normpath(self.inputFile):
 					funcDecl = elem.type
 					foundFunctions.append(elem)
 					LOGGER.debug(f"[{len(foundFunctions)}] Function Declaration: {funcName}")
@@ -76,7 +76,7 @@ class Scanner(metaclass=ABCMeta):
 				decl = elem.decl
 				funcName = decl.name
 				header = decl.coord.file
-				if os.path.normpath(header) == os.path.normpath(self.targetHeader):
+				if os.path.normpath(header) == os.path.normpath(self.inputFile):
 					funcDecl = decl.type
 					foundFunctions.append(elem)
 					LOGGER.debug(f"[{len(foundFunctions)}] Function Definition: {funcName}")
@@ -92,10 +92,10 @@ class Scanner(metaclass=ABCMeta):
 	def _call_parse(self, pathToHeader:str)->pycparser.c_ast.FileAST:
 		pass
 
-class GCCScanner(Scanner):
-	def __init__(self, targetHeader:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None)->None:
+class GCCHeaderScanner(Scanner):
+	def __init__(self, inputFile:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None)->None:
 		super().__init__(
-			targetHeader,
+			inputFile,
 			fakes,
 			includes,
 			includeFiles,

@@ -10,8 +10,8 @@ import autofff.config as c
 from autofff.config import CONFIG
 
 SCANNER_TYPES = {
-	c.GCC_SCANNER_TYPE: lambda *args, **kwargs: scanner.GCCScanner(*args, **kwargs)
-	}
+	c.GCC_SCANNER_TYPE: lambda *args, **kwargs: scanner.GCCHeaderScanner(*args, **kwargs)
+}
 
 GENERATOR_TYPES = {
 	c.BARE_GENERATOR_TYPE: lambda *args, **kwargs: generator.BareFakeGenerator(),
@@ -22,7 +22,7 @@ def main()->None:
 	parser = ArgumentParser(
 		prog='autofff',
 		description="Auto-generate FFF fake definitions for C API header files")
-	parser.add_argument('header',
+	parser.add_argument('input',
 		type=str,
 		help="Path of c-header file to generate fff-fakes for.")
 	parser.add_argument('-O', '--output',
@@ -84,13 +84,13 @@ def main()->None:
 
 	c.load(args.config.strip())
 
-	_, fileext = os.path.splitext(args.header)
+	_, fileext = os.path.splitext(args.input)
 	if fileext != '.h':
 		logger.warning(f"Detected non-standard header file extension '{fileext}' (expected '.h'-file).")
 
 	scannerType = CONFIG[c.AUTOFFF_SECTION][c.SCANNER_TYPE]
 	scnr = SCANNER_TYPES[scannerType](
-		targetHeader=args.header,
+		inputFile=args.input,
 		fakes=args.fakes,
 		includes=args.includes,
 		includeFiles=args.includeFiles,
@@ -99,7 +99,7 @@ def main()->None:
 	generatorType = CONFIG[c.AUTOFFF_SECTION][c.GENERATOR_TYPE]
 	gen = GENERATOR_TYPES[generatorType](
 		os.path.splitext(os.path.basename(args.output))[0],
-		args.header,
+		args.input,
 		args.includeFiles
 	)
 
