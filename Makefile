@@ -36,7 +36,7 @@ build_tests: build_gtest_lib $(TEST_EXES)
 
 .PHONY: install_autofff
 install_autofff:
-	python3 -m pip install --user $(ROOT_DIR)
+	python3 -m pip install $(ROOT_DIR)
 	@echo
 
 .PHONY: gtest_lib
@@ -62,7 +62,7 @@ clean_unittest:
 
 .PHONY: uninstall_autofff
 uninstall_autofff:
-	python -m pip uninstall --user $(ROOT_DIR)
+	python -m pip uninstall $(ROOT_DIR)
 	@echo
 
 .PHONY: clean
