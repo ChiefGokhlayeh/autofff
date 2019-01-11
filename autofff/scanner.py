@@ -110,8 +110,8 @@ class GCCHeaderScanner(Scanner):
 			+ format_as_includes(self.includes)
 			+ format_as_include_files(self.includeFiles)
 			+ format_as_defines(self.defines)
+			+ [format_as_define(CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_IGNORE_ANNOTATION]),]
 		)
-
 		LOGGER.debug(f"GCC args for parsing: {', '.join(cppArgs)}")
 		return self._parse_file(
 			pathToHeader,
