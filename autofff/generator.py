@@ -61,7 +61,7 @@ class BareFakeGenerator(FakeGenerator):
 	def _generateFakeForDecl(self, decl:Decl)->str:
 		funcName = decl.name
 		returnType = utils.get_type_name(decl.type)
-		if any(map(lambda p: isinstance(p, EllipsisParam), decl.type.args.params)):
+		if decl.type.args != None and any(map(lambda p: isinstance(p, EllipsisParam), decl.type.args.params)):
 			vararg = '_VARARG'
 		else:
 			vararg = ''
@@ -69,7 +69,9 @@ class BareFakeGenerator(FakeGenerator):
 			fake = f'FAKE_VOID_FUNC{vararg}({funcName}'
 		else:
 			fake = f'FAKE_VALUE_FUNC{vararg}({returnType}, {funcName}'
-		if len(decl.type.args.params) > 1 or (
+		if decl.type.args == None:
+			pass
+		elif len(decl.type.args.params) > 1 or (
 			not isinstance(decl.type.args.params[0], EllipsisParam) and
 				utils.get_type_name(decl.type.args.params[0]) != 'void'):
 			for param in decl.type.args.params:

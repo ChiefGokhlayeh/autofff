@@ -58,14 +58,17 @@ class Scanner(metaclass=ABCMeta):
 					foundFunctions.append(elem)
 					LOGGER.debug(f"[{len(foundFunctions)}] Function Declaration: {funcName}")
 					LOGGER.debug(f"\tReturn type: {utils.get_type_name(elem)}")
-					paramList = funcDecl.args.params
-					for param in paramList:
-						if isinstance(param, pycparser.c_ast.EllipsisParam):
-							paramName = '...'
-						else:
-							paramName = param.name
-							paramType = utils.get_type_name(param)
-						LOGGER.debug(f"\tParameter: {paramName} of Type: {paramType}")
+					if funcDecl.args == None:
+						LOGGER.debug("\tEmpty parameter list")
+					else:
+						paramList = funcDecl.args.params
+						for param in paramList:
+							if isinstance(param, pycparser.c_ast.EllipsisParam):
+								paramName = '...'
+							else:
+								paramName = param.name
+								paramType = utils.get_type_name(param)
+							LOGGER.debug(f"\tParameter: {paramName} of Type: {paramType}")
 		return foundFunctions
 
 	def _mine_function_definitions(self, ast:pycparser.c_ast.FileAST)->list:
