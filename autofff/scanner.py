@@ -30,6 +30,11 @@ class ScannerResult():
 		self.declarations = declarations
 		self.definitions = definitions
 
+class SymbolTable:
+	def __init__(self, objectFile, sourceFile:str):
+		self.objectFile = objectFile
+		self.sourceFile = sourceFile
+
 class Scanner(metaclass=ABCMeta):
 	def __init__(self, inputFile:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None, ignorePattern:str=None)->None:
 		self.inputFile = inputFile
@@ -206,6 +211,34 @@ class GCCObjectScanner(GCCScanner):
 			includeFiles,
 			defines,
 			CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_NON_STANDARD_IGNORE_PATTERN])
+
+	def _read_symbols(self, pathToObj:str)->SymbolTable:
+		path_list = ['readelf', '-s']
+		path_list += [pathToObj]
+
+		try:
+			pipe = subprocess.Popen(path_list,
+							stdout=subprocess.PIPE,
+							universal_newlines=True)
+			text = pipe.communicate()[0]
+			matches = re.finditer(r"(File: " + re.escape(pathToObj) + r"\((?P<object>.*)\)\s+|Symbol table).*:\s+.*\n(?P<symbols>(?:.+(\n|$))*)", text, re.MULTILINE)
+			tables = list()
+			for match in matches:
+				print(match)
+				objectFile = match.group('object') or pathToObj
+				symbols = match.group('symbols')
+				tables.append(SymbolTable(objectFile, None))
+				print(objectFile)
+				print(symbols)
+		except OSError as e:
+			raise RuntimeError("Unable to invoke 'readelf'.  " +
+				'Make sure its path was passed correctly\n' +
+				('Original error: %s' % e))
+
+	@overrides
+	def scan(self)->ScannerResult:
+		self._read_symbols(self.inputFile)
+		return ScannerResult(tuple(), tuple())
 
 def format_as_includes(includes:list)->list:
 	if includes is None:
