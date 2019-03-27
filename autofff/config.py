@@ -14,8 +14,9 @@ if __name__ == "__main__":
 AUTOFFF_SECTION = 'autofff'
 
 SCANNER_TYPE = 'scanner_type'
-GCC_SCANNER_TYPE = 'gcc'
-SCANNER_TYPE_DEF = GCC_SCANNER_TYPE
+GCC_HEADER_SCANNER_TYPE = 'gcc_header'
+GCC_OBJECT_SCANNER_TYPE = 'gcc_object'
+SCANNER_TYPE_DEF = GCC_HEADER_SCANNER_TYPE
 
 GENERATOR_TYPE = 'generator_type'
 BARE_GENERATOR_TYPE = 'bare'
@@ -76,7 +77,7 @@ BARE_GENERATOR_SECTION = 'bare.generator'
 VALIDATOR = Validator()
 CONFIG_SPEC = [
     f"[{AUTOFFF_SECTION}]",
-    f"{SCANNER_TYPE} = option('{GCC_SCANNER_TYPE}', default='{SCANNER_TYPE_DEF}')",
+    f"{SCANNER_TYPE} = option('{GCC_HEADER_SCANNER_TYPE}', '{GCC_OBJECT_SCANNER_TYPE}', default='{SCANNER_TYPE_DEF}')",
     f"{GENERATOR_TYPE} = option('{BARE_GENERATOR_TYPE}', '{SIMPLE_GENERATOR_TYPE}', default='{GENERATOR_TYPE_DEF}')",
     f"[[{GCC_SCANNER_SECTION}]]",
     f"{GCC_SCANNER_CPP_PATH} = string(default='{GCC_SCANNER_CPP_PATH_DEF}')",

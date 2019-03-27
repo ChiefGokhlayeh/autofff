@@ -10,7 +10,8 @@ import autofff.config as c
 from autofff.config import CONFIG
 
 SCANNER_TYPES = {
-	c.GCC_SCANNER_TYPE: lambda *args, **kwargs: scanner.GCCHeaderScanner(*args, **kwargs)
+	c.GCC_HEADER_SCANNER_TYPE: lambda *args, **kwargs: scanner.GCCHeaderScanner(*args, **kwargs),
+	c.GCC_OBJECT_SCANNER_TYPE: lambda *args, **kwargs: scanner.GCCObjectScanner(*args, **kwargs)
 }
 
 GENERATOR_TYPES = {

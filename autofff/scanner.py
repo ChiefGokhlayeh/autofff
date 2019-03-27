@@ -197,6 +197,16 @@ class GCCHeaderScanner(GCCScanner):
 			defines,
 			CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_NON_STANDARD_IGNORE_PATTERN])
 
+class GCCObjectScanner(GCCScanner):
+	def __init__(self, inputFile:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None)->None:
+		super().__init__(
+			inputFile,
+			fakes,
+			includes,
+			includeFiles,
+			defines,
+			CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_NON_STANDARD_IGNORE_PATTERN])
+
 def format_as_includes(includes:list)->list:
 	if includes is None:
 		return list()
