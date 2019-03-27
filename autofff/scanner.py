@@ -84,26 +84,29 @@ class Scanner(metaclass=ABCMeta):
 					foundFunctions.append(elem)
 					LOGGER.debug(f"[{len(foundFunctions)}] Function Definition: {funcName}")
 					LOGGER.debug(f"\tReturn type: {utils.get_type_name(decl)}")
-					paramList = funcDecl.args.params
-					for param in paramList:
-						paramName = param.name
-						paramType = utils.get_type_name(param)
-						LOGGER.debug(f"\tParameter: {paramName} of Type: {paramType}")
+					if funcDecl.args == None:
+						LOGGER.debug("\tEmpty parameter list")
+					else:
+						paramList = funcDecl.args.params
+						for param in paramList:
+							paramName = param.name
+							paramType = utils.get_type_name(param)
+							LOGGER.debug(f"\tParameter: {paramName} of Type: {paramType}")
 		return foundFunctions
 
 	@abstractmethod
 	def _call_parse(self, pathToHeader:str)->pycparser.c_ast.FileAST:
 		pass
 
-class GCCHeaderScanner(Scanner):
-	def __init__(self, inputFile:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None)->None:
+class GCCScanner(Scanner):
+	def __init__(self, inputFile:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None, ignorePattern:str=None)->None:
 		super().__init__(
 			inputFile,
 			fakes,
 			includes,
 			includeFiles,
 			defines,
-			CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_NON_STANDARD_IGNORE_PATTERN])
+			ignorePattern)
 
 	@overrides
 	def _call_parse(self, pathToHeader:str)->pycparser.c_ast.FileAST:
@@ -183,6 +186,16 @@ class GCCHeaderScanner(Scanner):
 				elif i >= prevRowStart and i <= postRowStart:
 					context += f"{line[:-1]}\n"
 		return context
+
+class GCCHeaderScanner(GCCScanner):
+	def __init__(self, inputFile:str, fakes:str, includes:list=None, includeFiles:list=None, defines:list=None)->None:
+		super().__init__(
+			inputFile,
+			fakes,
+			includes,
+			includeFiles,
+			defines,
+			CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_NON_STANDARD_IGNORE_PATTERN])
 
 def format_as_includes(includes:list)->list:
 	if includes is None:
