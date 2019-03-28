@@ -213,7 +213,7 @@ class GCCObjectScanner(GCCScanner):
 			CONFIG[c.AUTOFFF_SECTION][c.GCC_SCANNER_SECTION][c.GCC_SCANNER_NON_STANDARD_IGNORE_PATTERN])
 
 	def _read_symbols(self, pathToObj:str)->SymbolTable:
-		path_list = ['readelf', '-s']
+		path_list = ['objdump', '-t']
 		path_list += [pathToObj]
 
 		try:
@@ -221,14 +221,19 @@ class GCCObjectScanner(GCCScanner):
 							stdout=subprocess.PIPE,
 							universal_newlines=True)
 			text = pipe.communicate()[0]
-			matches = re.finditer(r"(File: " + re.escape(pathToObj) + r"\((?P<object>.*)\)\s+|Symbol table).*:\s+.*\n(?P<symbols>(?:.+(\n|$))*)", text, re.MULTILINE)
+			matches = re.finditer(r"(?P<object>.*):\s+file format.*\s+SYMBOL TABLE:\n(?P<symbols>(?:.+(\n|$))*)", text, re.MULTILINE)
 			tables = list()
 			for match in matches:
 				print(match)
 				objectFile = match.group('object') or pathToObj
 				symbols = match.group('symbols')
+				symMatch = re.search(r"\*ABS\*\s+[0-9a-fA-F]*\s+(?P<source>.*)", symbols, re.MULTILINE)
+				sourceFile = symMatch.group('source')
+				fuNMatches = re.finditer(r"", symbols, re.MULTILINE)
+
 				tables.append(SymbolTable(objectFile, None))
 				print(objectFile)
+				print(sourceFile)
 				print(symbols)
 		except OSError as e:
 			raise RuntimeError("Unable to invoke 'readelf'.  " +
