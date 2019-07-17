@@ -2,15 +2,15 @@
 
 Auto-generate [FFF](https://github.com/meekrosoft/fff) fake definitions for C API header files.
 
-Incorporate the script into your normal build environment (like _make_) and automatically generate test-headers with faked function definitions ready-to-use with [FFF](https://github.com/meekrosoft/fff)'s own _gtest_ or some other unit-testing-framework.
+Incorporate this script into your normal build environment (like _make_) and automatically generate test-headers with faked function definitions ready-to-use with [FFF](https://github.com/meekrosoft/fff)'s own _gtest_ or some other unit-testing-framework.
 
 ## The Idea Behind Faking
 
-Especially in the embedded world, running your (unit-)tests against the actual target platform often isn't feasible, as the architecture you're executing the test on and your target platform you're writing the code for are generally not the same.
+Especially in the embedded world, compiling your (unit-)tests against the actual target platform isn't feasible, as the architecture you're executing the test on and your target platform you're writing the code for are generally not the same.
 
-This is where faking a specific platform API might help you. Instead of calling the actual target platform API, you link your code-under-test (CuT) against a faked version of said API. Now whenever your CuT tries to access the platform API it is instead calling the fake-implementation which you can easily configure in your test-cases' setup phase.
+This is where faking a specific platform API might help you. Instead of calling the actual target platform API, you link your code-under-test (CuT) against a faked version of said API. Now, whenever your CuT tries to access the platform API,it is instead calling the fake-implementation which you can easily configure in your test-cases' setup phase.
 
-[FFF](https://github.com/meekrosoft/fff) (fake-functions-framework) is a framework designed to easily create faked definitions of your API function-declarations, allowing you to configure return values and inspect call and argument histories that were called during the tests' runtime.
+[FFF](https://github.com/meekrosoft/fff) (fake-functions-framework) is a framework designed to easily create faked definitions of your API function-declarations, allowing you to configure return values and inspect call and argument histories that were called during the tests' runtime. Check out their awesome project on [Github](https://github.com/meekrosoft/fff). AutoFFF utilizes the ability to easily create fake definitions provided by FFF, but could also be adapted to other mocking frameworks.
 
 The problem with faking an API in embedded C is usually the infeasibility of using dynamic linking and C's lack of techniques like 'reflection' to manipulate your CuT during runtime. This makes the process of writing fake definitions a tedious, labor intensive and error prone matter.
 
@@ -21,13 +21,13 @@ Introducing [*AutoFFF*](https://github.com/FreeGeronimo/autofff), an attempt at 
 When writing fakes you will notice that there are two approaches of laying out your fake.
 
 1. **Banning** the original API header\
-    This strategy *bans* the original header by defining the API headers include guard, making it impossible to include the original function, variable and type declarations. This gives you ultimate freedom in the test-header, but also means that you will have to manually declare any types, functions and variables the API-user might expect. It also allows you to control the include hierarchy and maybe skip some headers which aren't compatible with your test-runner's architecture. In general this approach usually involves a lot of copy&pasting and is therefore more prone to *"code rot"*. Not the optimal strategy if you're looking for an easy-to-maintain way of managing test-headers.
+    This strategy *bans* the original header by defining the API headers include guard, making it impossible to include the original function, variable and type declarations. This gives you ultimate freedom in the test-header, but also means that you will have to manually declare any types, functions and variables the API-user might expect. It also allows you to control the include hierarchy and maybe skip some headers which aren't compatible with your test-runner's architecture. In general this approach usually involves a lot of copy&pasting and is therefore more prone to *"code rot"*. You also need to deep-dive any header you want to fake, understand its structure and inspect all the declarations and defines very closely. Not the optimal strategy if you're looking for an easy-to-maintain way of managing test-headers.
 1. **Wrapping** the original API header\
-    Conversely to the banning method the *wrapping* strategy directly includes the original API header, and thereby imports any type, variable and function declarations. Also the include hierarchy is taken over from the original. The only thing to add into the test-header are the fake definitions. This method evidently grants you less freedom in the test-header, but usually is much shorter and slightly less prone to *"rot"* over time.
+    Conversely to the banning method, the *wrapping* strategy directly includes the original API header, and thereby imports any type, variable and function declarations. Also the include hierarchy is taken over from the original. The only thing to add into the test-header are the fake definitions. This method evidently grants you less freedom in the test-header, but is usually much shorter and slightly less prone to *"rot"* over time.
 
-It should become obvious which method is better suited for automation. Therefore *AutoFFF* follows the *wrapping* approach of writing test-headers, which for most cases should be good enough.
+It should become obvious which method is better suited for automation. *AutoFFF* follows the *wrapping* approach of writing test-headers, which for most cases should be good enough.
 
-Finally it must be stated, that these two philosophies seldomly mix well.
+Finally it must be stated, that these two philosophies seldomly mix well!
 
 ## Installation
 
@@ -42,6 +42,8 @@ Or install from source:
 ```shell
 py -3.6 -m pip install .
 ```
+
+Note that you'll most likely require the pycparser `fake_libc_include`s header collection for AutoFFF to work. The `pip` package does **not** ship with this external code. You may download the faked libc headers from [`pycparser`s Github](https://github.com/eliben/pycparser), or check out the project as a submodule (when installing from source run `git submodule update --init`).
 
 ## Usage
 
@@ -103,7 +105,7 @@ with open(outputHeader, "w") as fs:
 
 The format of the generated test-header obviously depends on the specifics of the `FakeGenerator` being used.
 
-1. The `BareFakeGenerator` will only generate the `FAKE_VALUE_`- and `FAKE_VOID_FUNC` macros without any decorations, like include guards or header includes. Use this generator if you want to add your own file (shell-based) processing on top.
+1. The `BareFakeGenerator` will only generate the `FAKE_VALUE_`- and `FAKE_VOID_FUNC` macros without any decorations, like include guards or header includes. Use this generator if you want to add your own (shell-based-)processing on top.
 2. The `SimpleFakeGenerator` will generate a "minimum viable test header", meaning the result should be compilable without too much effort.
 
 ### In-Header Defined Functions
@@ -179,3 +181,16 @@ TEST_F(foo, ReturnBar_Success)
     ASSERT_STREQ(expected_retval, str);
 }
 ```
+
+### Working with _obscure_ include policies
+
+Some libraries like FreeRTOS or CMSIS require you to include their API headers in a very specific way. AutoFFF can't guess these policies (yet! ;P) from source-code alone. For cases where the include policy of your vendor lib does not allow each header to be preprocessed individually check out the `-D` (`--define`) and `-i` (`--includefile`) command line options. They may allow you to fix/trick the broken include chain.
+As an example, for FreeRTOS' `list.h` run:
+```
+py -3.6 -m autofff
+    [...]/include/list.h
+    -o [...]
+    -i [...]/include/FreeRTOS.h <<< inject FreeRTOS.h before preprocessing list.h
+    -F [...]
+ ```
+ 
