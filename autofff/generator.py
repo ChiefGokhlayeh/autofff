@@ -138,7 +138,9 @@ class SimpleFakeGenerator(BareFakeGenerator):
 			if self.includeFiles is not None:
 				incGuardBeginning += [ f'#include "{os.path.basename(f)}"\n' for f in self.includeFiles ]
 			incGuardBeginning += f'#include "{os.path.basename(self.originalHeader)}"\n\n'
+			incGuardBeginning += f"#ifdef __cplusplus\nextern \"C\" {{ \n #endif\n"
 			incGuardEnd = [
+				f"#ifdef __cplusplus\n}}\n#endif\n",
 				f"\n#endif /* {incGuard} */\n"
 			]
 			output.writelines(incGuardBeginning)
