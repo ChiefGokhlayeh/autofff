@@ -1,4 +1,4 @@
-# AutoFFF [![Build Status](https://travis-ci.org/FreeGeronimo/autofff.svg?branch=master)](https://travis-ci.org/FreeGeronimo/autofff) [![PyPI version](https://badge.fury.io/py/autofff.svg)](https://badge.fury.io/py/autofff) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+# AutoFFF [![Build Status](https://travis-ci.org/ChiefGokhlayeh/autofff.svg?branch=master)](https://travis-ci.org/ChiefGpkhlayeh/autofff) [![PyPI version](https://badge.fury.io/py/autofff.svg)](https://badge.fury.io/py/autofff) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 Auto-generate [FFF](https://github.com/meekrosoft/fff) fake definitions for C API header files.
 
@@ -14,7 +14,7 @@ This is where faking a specific platform API might help you. Instead of calling 
 
 The problem with faking an API in embedded C is usually the infeasibility of using dynamic linking and C's lack of techniques like 'reflection' to manipulate your CuT during runtime. This makes the process of writing fake definitions a tedious, labor intensive and error prone matter.
 
-Introducing [*AutoFFF*](https://github.com/FreeGeronimo/autofff), an attempt at automating the process of writing so called test-headers (headers which include the faked definitions).
+Introducing [*AutoFFF*](https://github.com/ChiefGokhlayeh/autofff), an attempt at automating the process of writing so called test-headers (headers which include the faked definitions).
 
 ### Two Philosophies of Faking
 
