@@ -143,7 +143,7 @@ const char* foo(void)
 #define foo_fake Foo_fff_fake
 #define foo_reset Foo_fff_reset
 /* Create the fake definition using the now re-routed 'foo'-symbol. */
-FAKE_VOID_FUNC(foo);
+FAKE_VALUE_FUNC(const char *, foo);
 
 #endif
 ```
