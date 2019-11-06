@@ -8,8 +8,8 @@ import validate
 LOGGER = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-	LOGGER.error("Module is not intended to run as '__main__'!")
-	sys.exit(1)
+    LOGGER.error("Module is not intended to run as '__main__'!")
+    sys.exit(1)
 
 AUTOFFF_SECTION = 'autofff'
 
@@ -30,16 +30,16 @@ GCC_SCANNER_CPP_PATH_DEF = 'cpp'
 
 GCC_SCANNER_CPP_ARGS = 'cpp_args'
 GCC_SCANNER_CPP_ARGS_DEF = "list(" + ", ".join([
-	r"'-D__attribute__(x)='",
-	r"'-D__asm__(x)='",
-	r"'-D__const='",
-	r"'-D__const__='",
-	r"'-D__restrict='",
-	r"'-D__restrict__='",
-	r"'-D__extension__='",
-	r"'-D__inline='",
-	r"'-D__forcedinline='",
-	r"'-D__inline__='",
+    r"'-D__attribute__(x)='",
+    r"'-D__asm__(x)='",
+    r"'-D__const='",
+    r"'-D__const__='",
+    r"'-D__restrict='",
+    r"'-D__restrict__='",
+    r"'-D__extension__='",
+    r"'-D__inline='",
+    r"'-D__forcedinline='",
+    r"'-D__inline__='",
 ]) + ")"
 
 GCC_SCANNER_CPP_INCLUDE_DIR_PREFIX = 'cpp_include_dir_prefix'
@@ -95,9 +95,10 @@ CONFIG_SPEC = [
     f"[[{BARE_GENERATOR_SECTION}]]",
 ]
 CONFIG = ConfigObj(configspec=CONFIG_SPEC, raise_errors=True)
-CONFIG.validate(VALIDATOR) # Invoke validator once to get basic structure
+CONFIG.validate(VALIDATOR)  # Invoke validator once to get basic structure
 
-def load(filename:str):
+
+def load(filename: str):
     global CONFIG, VALIDATOR
     CONFIG.filename = filename
     CONFIG.reload()
