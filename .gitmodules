@@ -1,9 +1,12 @@
 [submodule "dependencies/pycparser"]
 path = dependencies/pycparser
 url = https://github.com/eliben/pycparser.git
+shallow = true
 [submodule "dependencies/fff"]
 path = dependencies/fff
 url = https://github.com/meekrosoft/fff.git
+shallow = true
 [submodule "dependencies/llvm-project"]
 path = dependencies/llvm-project
 url = https://github.com/llvm/llvm-project.git
+shallow = true
