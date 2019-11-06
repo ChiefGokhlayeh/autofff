@@ -62,11 +62,11 @@ clean_unittest:
 
 .PHONY: uninstall_autofff
 uninstall_autofff:
-	python -m pip uninstall $(ROOT_DIR)
+	python3 -m pip uninstall autofff -y
 	@echo
 
 .PHONY: clean
-clean: clean_autofff clean_gtest clean_unittest uninstall_autofff
+clean: clean_autofff clean_gtest clean_unittest
 
 $(OUTPUT_DIR)/%.exe: $(TEST_DIR)/%.cc $(TEST_FAKES)
 	@echo "Building file: $<"
@@ -83,7 +83,7 @@ run_tests:
 		echo \
 	)
 
-$(OUTPUT_DIR)/%_th.h: $(EXAMPLES_DIR)/%.h install_autofff
+$(OUTPUT_DIR)/%_th.h: $(EXAMPLES_DIR)/%.h
 	@echo "Generating test-header: $<"
-	python3 -m autofff -O $(abspath $@) $(TEST_INCLUDES) -F $(DEPENDENCIES_DIR)/pycparser/utils/fake_libc_include $(AUTOFFF_CONFIG_FLAG) $<
+	python3 $(AUTOFFF_DIR) -O $(abspath $@) $(TEST_INCLUDES) -F $(DEPENDENCIES_DIR)/pycparser/utils/fake_libc_include $(AUTOFFF_CONFIG_FLAG) $<
 	@echo

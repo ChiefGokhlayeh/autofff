@@ -1,8 +1,28 @@
 language: python
-python:
-  - "3.6"
-install:
-  - pip install -r requirements.txt
-script:
-  - make all
-  - make all AUTOFFF_CONFIG=config.ini
+
+python: "3.6"
+
+git:
+  depth: 50
+  submodules_depth: 50
+
+jobs:
+  include:
+    - stage: all
+      name: "Prepare, run, and test everything"
+      dist: bionic
+      addons:
+        apt:
+          update: true
+          packages:
+            - libclang-8-dev
+            - clang-8
+      install:
+        - pip install -r requirements.txt
+      script:
+        - make clean
+        - make run_tests
+        - make clean
+        - make run_tests AUTOFFF_CONFIG=config.ini
+        - make clean
+        - make install_autofff
