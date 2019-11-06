@@ -8,6 +8,7 @@ path = os.path.join(path, '..')
 sys.path.insert(0, path)
 import autofff
 import autofff.scanner as scanner
+import autofff.clang_scanner as clang_scanner
 import autofff.generator as generator
 import autofff.config as c
 from autofff.config import CONFIG
@@ -23,6 +24,10 @@ GENERATOR_TYPES = {
     c.SIMPLE_GENERATOR_TYPE: lambda *args, **kwargs: generator.SimpleFakeGenerator(
         *args, **kwargs)
 }
+
+c_scnr = clang_scanner.ClangScanner(
+    os.path.join(path, 'examples/simple-headers/driver.h'))
+c_scnr.scan()
 
 
 def main() -> None:
