@@ -1,0 +1,8 @@
+{
+  "python.linting.pylintEnabled": true,
+  "python.linting.enabled": true,
+  "python.formatting.provider": "autopep8",
+  "cSpell.words": [
+    "pycparser"
+  ]
+}

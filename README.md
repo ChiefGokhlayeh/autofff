@@ -14,24 +14,24 @@ This is where faking a specific platform API might help you. Instead of calling 
 
 The problem with faking an API in embedded C is usually the infeasibility of using dynamic linking and C's lack of techniques like 'reflection' to manipulate your CuT during runtime. This makes the process of writing fake definitions a tedious, labor intensive and error prone matter.
 
-Introducing [*AutoFFF*](https://github.com/ChiefGokhlayeh/autofff), an attempt at automating the process of writing so called test-headers (headers which include the faked definitions).
+Introducing [_AutoFFF_](https://github.com/ChiefGokhlayeh/autofff), an attempt at automating the process of writing so called test-headers (headers which include the faked definitions).
 
 ### Two Philosophies of Faking
 
 When writing fakes you will notice that there are two approaches of laying out your fake.
 
 1. **Banning** the original API header\
-    This strategy *bans* the original header by defining the API headers include guard, making it impossible to include the original function, variable and type declarations. This gives you ultimate freedom in the test-header, but also means that you will have to manually declare any types, functions and variables the API-user might expect. It also allows you to control the include hierarchy and maybe skip some headers which aren't compatible with your test-runner's architecture. In general this approach usually involves a lot of copy&pasting and is therefore more prone to *"code rot"*. You also need to deep-dive any header you want to fake, understand its structure and inspect all the declarations and defines very closely. Not the optimal strategy if you're looking for an easy-to-maintain way of managing test-headers.
+   This strategy _bans_ the original header by defining the API headers include guard, making it impossible to include the original function, variable and type declarations. This gives you ultimate freedom in the test-header, but also means that you will have to manually declare any types, functions and variables the API-user might expect. It also allows you to control the include hierarchy and maybe skip some headers which aren't compatible with your test-runner's architecture. In general this approach usually involves a lot of copy&pasting and is therefore more prone to _"code rot"_. You also need to deep-dive any header you want to fake, understand its structure and inspect all the declarations and defines very closely. Not the optimal strategy if you're looking for an easy-to-maintain way of managing test-headers.
 1. **Wrapping** the original API header\
-    Conversely to the banning method, the *wrapping* strategy directly includes the original API header, and thereby imports any type, variable and function declarations. Also the include hierarchy is taken over from the original. The only thing to add into the test-header are the fake definitions. This method evidently grants you less freedom in the test-header, but is usually much shorter and slightly less prone to *"rot"* over time.
+   Conversely to the banning method, the _wrapping_ strategy directly includes the original API header, and thereby imports any type, variable and function declarations. Also the include hierarchy is taken over from the original. The only thing to add into the test-header are the fake definitions. This method evidently grants you less freedom in the test-header, but is usually much shorter and slightly less prone to _"rot"_ over time.
 
-It should become obvious which method is better suited for automation. *AutoFFF* follows the *wrapping* approach of writing test-headers, which for most cases should be good enough.
+It should become obvious which method is better suited for automation. _AutoFFF_ follows the _wrapping_ approach of writing test-headers, which for most cases should be good enough.
 
 Finally it must be stated, that these two philosophies seldomly mix well!
 
 ## Installation
 
-Use `pip` to download and install *AutoFFF* from the [PyPi](https://pypi.org/project/autofff/) repositories:
+Use `pip` to download and install _AutoFFF_ from the [PyPi](https://pypi.org/project/autofff/) repositories:
 
 ```shell
 py -3.6 -m pip install autofff
@@ -65,7 +65,7 @@ To run build and run the tests, simply execute:
 make run_tests
 ```
 
-You can also let the makefile do the installation of *AutoFFF* for you.
+You can also let the makefile do the installation of _AutoFFF_ for you.
 
 ```shell
 make install_autofff
@@ -112,7 +112,7 @@ The format of the generated test-header obviously depends on the specifics of th
 
 In some API headers functions may be defined within the header. This will cause issues when trying to fake this function, because by including the header the function definition is copied into each translation unit. If we try to apply a fake definition the usual way, we will end up with a _"redefinition of function *x*"_ error.
 
-*AutoFFF* implements a workaround to avoid this redefinition error and allowing to fake the original function. This workaround simply consists of some defines which will re-route any call to the original in-header definition to our faked one. For this to work it is required that the test-header is included (and thereby pre-processed) _before_ any function call to the function under consideration is instructed, i.e. the test-header must be included _before_ the CuT. Any function call that is processed before the workaround is being pre-processed will leave this function call targeted towards the original in-header definition.
+_AutoFFF_ implements a workaround to avoid this redefinition error and allowing to fake the original function. This workaround simply consists of some defines which will re-route any call to the original in-header definition to our faked one. For this to work it is required that the test-header is included (and thereby pre-processed) _before_ any function call to the function under consideration is instructed, i.e. the test-header must be included _before_ the CuT. Any function call that is processed before the workaround is being pre-processed will leave this function call targeted towards the original in-header definition.
 
 In practice the workaround looks like this:
 
@@ -186,11 +186,11 @@ TEST_F(foo, ReturnBar_Success)
 
 Some libraries like FreeRTOS or CMSIS require you to include their API headers in a very specific way. AutoFFF can't guess these policies (yet! ;P) from source-code alone. For cases where the include policy of your vendor lib does not allow each header to be preprocessed individually check out the `-D` (`--define`) and `-i` (`--includefile`) command line options. They may allow you to fix/trick the broken include chain.
 As an example, for FreeRTOS' `list.h` run:
-```
+
+```shell
 py -3.6 -m autofff
     [...]/include/list.h
     -o [...]
     -i [...]/include/FreeRTOS.h <<< inject FreeRTOS.h before preprocessing list.h
     -F [...]
- ```
- 
+```

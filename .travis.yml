@@ -1,8 +1,8 @@
 language: python
 python:
-- '3.6'
+  - "3.6"
 install:
-- pip install -r requirements.txt
+  - pip install -r requirements.txt
 script:
-- make all
-- make all AUTOFFF_CONFIG=config.ini
+  - make all
+  - make all AUTOFFF_CONFIG=config.ini

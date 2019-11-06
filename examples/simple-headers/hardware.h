@@ -3,9 +3,9 @@
 
 #include <string.h>
 
-typedef void* Hardware;
+typedef void *Hardware;
 
 /* Showcasing the skipping of headers that are included by the original */
-const char* Hardware_GetDescription(const Hardware* hw);
+const char *Hardware_GetDescription(const Hardware *hw);
 
 #endif
