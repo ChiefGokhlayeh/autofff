@@ -4,7 +4,8 @@ FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends \
     clang-format-11 \
-    curl
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 ARG POETRY_VERSION=1.1.11
 RUN pip3 install \
