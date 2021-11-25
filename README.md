@@ -1,6 +1,6 @@
 # AutoFFF
 
-[![test](https://github.com/ChiefGokhlayeh/autofff/actions/workflows/test.yml/badge.svg)](https://github.com/ChiefGokhlayeh/autofff/actions/workflows/test.yml)
+[![build](https://github.com/ChiefGokhlayeh/autofff/actions/workflows/build.yml/badge.svg)](https://github.com/ChiefGokhlayeh/autofff/actions/workflows/build.yml)
 [![PyPI version](https://badge.fury.io/py/autofff.svg)](https://badge.fury.io/py/autofff)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 

@@ -1,0 +1,64 @@
+name: build
+
+on:
+    push:
+    pull_request:
+    release:
+        types:
+            - published
+            - edited
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository and submodules
+              uses: actions/checkout@v2
+              with:
+                  submodules: recursive
+            - name: Run tests
+              uses: ./.devcontainer
+              with:
+                  args: make all
+            - name: Run tests with config
+              uses: ./.devcontainer
+              with:
+                  args: make all AUTOFFF_CONFIG=config.ini
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+            - name: Build distribution files
+              uses: ./.devcontainer
+              with:
+                  args: poetry build
+            - name: Upload distribution files as artifacts
+              uses: actions/upload-artifact@v2
+              with:
+                  name: dist
+                  path: ./dist
+                  if-no-files-found: error
+    deploy:
+        runs-on: ubuntu-latest
+        needs: [test, build]
+        steps:
+            - name: Download distribution files
+              uses: actions/download-artifact@v2
+              with:
+                  name: dist
+                  path: ./dist
+            - name: Publish autofff to TestPyPI
+              if: ${{ github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/master') }}
+              uses: pypa/gh-action-pypi-publish@release/v1
+              with:
+                  user: ${{ secrets.TEST_PYPI_USERNAME }}
+                  password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+                  repository_url: https://test.pypi.org/legacy/
+                  skip_existing: true
+            - name: Publish autofff to PyPI
+              if: ${{ github.event_name == 'release' }}
+              uses: pypa/gh-action-pypi-publish@release/v1
+              with:
+                  user: ${{ secrets.PYPI_USERNAME }}
+                  password: ${{ secrets.PYPI_API_TOKEN }}
