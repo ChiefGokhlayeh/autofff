@@ -31,6 +31,9 @@ rope = "^0.22.0"
 flake8 = "^4.0.1"
 pre-commit = "^2.15.0"
 
+[tool.poetry.scripts]
+autofff = "autofff.__main__:main"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
