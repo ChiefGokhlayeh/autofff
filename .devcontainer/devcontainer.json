@@ -29,7 +29,7 @@
         "njpwerner.autodocstring",
     ],
 
-    "postCreateCommand": "poetry install --no-root",
+    "postCreateCommand": "poetry install --no-root && poetry run pre-commit install",
 
     "remoteUser": "vscode",
 }
