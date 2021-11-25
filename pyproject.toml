@@ -4,6 +4,19 @@ version = "0.4"
 description = "Auto-generate FFF fake definitions for C API header files"
 authors = ["Andreas Baulig <free.geronimo@hotmail.de>"]
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/ChiefGokhlayeh/autofff"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: C",
+    "Programming Language :: C++",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Software Development :: Testing",
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
