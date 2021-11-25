@@ -30,9 +30,14 @@ endif
 # Prevent make from deleting fakes as 'intermediate' files
 .PRECIOUS: $(TEST_FAKES)
 
-all: run_tests
+all: install_autofff run_tests
 run_tests: build_tests
 build_tests: build_gtest_lib $(TEST_EXES)
+
+.PHONY: install_autofff
+install_autofff:
+	poetry install
+	@echo
 
 .PHONY: gtest_lib
 build_gtest_lib:
@@ -55,8 +60,13 @@ clean_unittest:
 	$(RM) $(TEST_EXES)
 	@echo
 
+.PHONY: uninstall_autofff
+uninstall_autofff:
+	poetry run pip uninstall -y autofff
+	@echo
+
 .PHONY: clean
-clean: clean_autofff clean_gtest clean_unittest
+clean: clean_autofff clean_gtest clean_unittest uninstall_autofff
 
 $(OUTPUT_DIR)/%.exe: $(TEST_DIR)/%.cc $(TEST_FAKES)
 	@echo "Building file: $<"
@@ -73,7 +83,7 @@ run_tests:
 		echo \
 	)
 
-$(OUTPUT_DIR)/%_th.h: $(EXAMPLES_DIR)/%.h
+$(OUTPUT_DIR)/%_th.h: $(EXAMPLES_DIR)/%.h install_autofff
 	@echo "Generating test-header: $<"
-	python3 -m autofff -O $(abspath $@) $(TEST_INCLUDES) -F $(DEPENDENCIES_DIR)/pycparser/utils/fake_libc_include $(AUTOFFF_CONFIG_FLAG) $<
+	poetry run python -m autofff -O $(abspath $@) $(TEST_INCLUDES) -F $(DEPENDENCIES_DIR)/pycparser/utils/fake_libc_include $(AUTOFFF_CONFIG_FLAG) $<
 	@echo
