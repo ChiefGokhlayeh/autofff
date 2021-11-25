@@ -6,7 +6,7 @@
         "args": {
             "VARIANT": "3.9",
             "POETRY_VERSION": "1.1.11",
-        }
+        },
     },
 
     "settings": {
@@ -22,13 +22,14 @@
     "extensions": [
         "bungcip.better-toml",
         "davidanson.vscode-markdownlint",
+        "esbenp.prettier-vscode",
         "ms-python.python",
         "ms-python.vscode-pylance",
         "ms-vscode.cpptools-extension-pack",
-        "njpwerner.autodocstring"
+        "njpwerner.autodocstring",
     ],
 
     "postCreateCommand": "poetry install --no-root",
 
-    "remoteUser": "vscode"
+    "remoteUser": "vscode",
 }

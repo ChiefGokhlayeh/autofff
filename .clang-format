@@ -6,5 +6,5 @@ ColumnLimit: 0
 IndentCaseLabels: false
 IndentWidth: 4
 TabWidth: 4
-UseTab: 'Never'
+UseTab: "Never"
 SortIncludes: false
