@@ -1,3 +1,11 @@
+from pycparser.c_ast import (
+    Decl,
+    EllipsisParam,
+    FuncDef,
+    IdentifierType,
+    TypeDecl,
+    Typedef,
+)
 import autofff.utils as utils
 import autofff.scanner as scanner
 import autofff.config as c
@@ -14,7 +22,6 @@ from overrides import overrides
 
 import pycparser
 import pycparser.c_generator
-from pycparser.c_ast import *
 
 LOGGER = logging.getLogger(__name__)
 
@@ -64,7 +71,7 @@ class BareFakeGenerator(FakeGenerator):
     def _generateFakeForDecl(self, decl: Decl) -> str:
         funcName = decl.name
         returnType = utils.get_type_name(decl.type)
-        if decl.type.args != None and any(
+        if decl.type.args is not None and any(
             map(lambda p: isinstance(p, EllipsisParam), decl.type.args.params)
         ):
             vararg = "_VARARG"
@@ -74,7 +81,7 @@ class BareFakeGenerator(FakeGenerator):
             fake = f"FAKE_VOID_FUNC{vararg}({funcName}"
         else:
             fake = f"FAKE_VALUE_FUNC{vararg}({returnType}, {funcName}"
-        if decl.type.args == None:
+        if decl.type.args is None:
             pass
         elif len(decl.type.args.params) > 1 or (
             not isinstance(decl.type.args.params[0], EllipsisParam)
@@ -140,7 +147,7 @@ class SimpleFakeGenerator(BareFakeGenerator):
         self.fakeName = fakeName
         self.originalHeader = originalHeader
         self.includeFiles = includeFiles
-        if generateIncludeGuard == None:
+        if generateIncludeGuard is None:
             self.generateIncludeGuard = CONFIG[c.AUTOFFF_SECTION][
                 c.SIMPLE_GENERATOR_SECTION
             ][c.SIMPLE_GENERATOR_GENERATE_INCLUDE_GUARD]
@@ -173,9 +180,9 @@ class SimpleFakeGenerator(BareFakeGenerator):
             incGuardBeginning += (
                 f'#include "{os.path.basename(self.originalHeader)}"\n\n'
             )
-            incGuardBeginning += f'#ifdef __cplusplus\nextern "C" {{ \n #endif\n'
+            incGuardBeginning += '#ifdef __cplusplus\nextern "C" { \n #endif\n'
             incGuardEnd = [
-                f"#ifdef __cplusplus\n}}\n#endif\n",
+                "#ifdef __cplusplus\n}\n#endif\n",
                 f"\n#endif /* {incGuard} */\n",
             ]
             output.writelines(incGuardBeginning)

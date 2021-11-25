@@ -3,7 +3,6 @@ import sys
 
 from configobj import ConfigObj
 from validate import Validator
-import validate
 
 LOGGER = logging.getLogger(__name__)
 

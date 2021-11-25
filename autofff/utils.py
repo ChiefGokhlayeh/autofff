@@ -1,9 +1,18 @@
 import logging
 import sys
+from pycparser.c_ast import (
+    ArrayDecl,
+    Decl,
+    Enum,
+    FuncDecl,
+    IdentifierType,
+    PtrDecl,
+    Struct,
+    TypeDecl,
+    Union,
+)
 
-import pycparser
 from pycparser.c_generator import CGenerator
-from pycparser.c_ast import *
 
 LOGGER = logging.getLogger(__name__)
 

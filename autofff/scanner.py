@@ -12,7 +12,6 @@ import re
 from overrides import overrides
 
 import pycparser
-from pycparser import parse_file
 
 LOGGER = logging.getLogger(__name__)
 
@@ -82,7 +81,7 @@ class Scanner(metaclass=ABCMeta):
                         f"[{len(foundFunctions)}] Function Declaration: {funcName}"
                     )
                     LOGGER.debug(f"\tReturn type: {utils.get_type_name(elem)}")
-                    if funcDecl.args == None:
+                    if funcDecl.args is None:
                         LOGGER.debug("\tEmpty parameter list")
                     else:
                         paramList = funcDecl.args.params
@@ -112,7 +111,7 @@ class Scanner(metaclass=ABCMeta):
                         f"[{len(foundFunctions)}] Function Definition: {funcName}"
                     )
                     LOGGER.debug(f"\tReturn type: {utils.get_type_name(decl)}")
-                    if funcDecl.args == None:
+                    if funcDecl.args is None:
                         LOGGER.debug("\tEmpty parameter list")
                     else:
                         paramList = funcDecl.args.params
@@ -326,7 +325,6 @@ class GCCObjectScanner(GCCScanner):
                     r"\*ABS\*\s+[0-9a-fA-F]*\s+(?P<source>.*)", symbols, re.MULTILINE
                 )
                 sourceFile = symMatch.group("source")
-                fuNMatches = re.finditer(r"", symbols, re.MULTILINE)
 
                 tables.append(SymbolTable(objectFile, None))
                 print(objectFile)

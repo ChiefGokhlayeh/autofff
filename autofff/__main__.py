@@ -3,9 +3,6 @@ import logging
 import os.path
 import sys
 
-path = os.path.dirname(sys.modules[__name__].__file__)
-path = os.path.join(path, "..")
-sys.path.insert(0, path)
 import autofff
 import autofff.scanner as scanner
 import autofff.generator as generator
@@ -159,7 +156,7 @@ def main() -> None:
     with open(outputFile, "w") as fs:
         gen.generate(result, fs)
 
-    logger.info(f"Generation complete!")
+    logger.info("Generation complete!")
 
 
 if __name__ == "__main__":
