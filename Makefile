@@ -30,14 +30,9 @@ endif
 # Prevent make from deleting fakes as 'intermediate' files
 .PRECIOUS: $(TEST_FAKES)
 
-all: install_autofff run_tests
+all: run_tests
 run_tests: build_tests
 build_tests: build_gtest_lib $(TEST_EXES)
-
-.PHONY: install_autofff
-install_autofff:
-	python3 -m pip install $(ROOT_DIR)
-	@echo
 
 .PHONY: gtest_lib
 build_gtest_lib:
@@ -60,13 +55,8 @@ clean_unittest:
 	$(RM) $(TEST_EXES)
 	@echo
 
-.PHONY: uninstall_autofff
-uninstall_autofff:
-	python -m pip uninstall $(ROOT_DIR)
-	@echo
-
 .PHONY: clean
-clean: clean_autofff clean_gtest clean_unittest uninstall_autofff
+clean: clean_autofff clean_gtest clean_unittest
 
 $(OUTPUT_DIR)/%.exe: $(TEST_DIR)/%.cc $(TEST_FAKES)
 	@echo "Building file: $<"
@@ -83,7 +73,7 @@ run_tests:
 		echo \
 	)
 
-$(OUTPUT_DIR)/%_th.h: $(EXAMPLES_DIR)/%.h install_autofff
+$(OUTPUT_DIR)/%_th.h: $(EXAMPLES_DIR)/%.h
 	@echo "Generating test-header: $<"
 	python3 -m autofff -O $(abspath $@) $(TEST_INCLUDES) -F $(DEPENDENCIES_DIR)/pycparser/utils/fake_libc_include $(AUTOFFF_CONFIG_FLAG) $<
 	@echo

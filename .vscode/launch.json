@@ -12,7 +12,7 @@
         "-I examples",
         "-F dependencies/pycparser/utils/fake_libc_include",
         "--debug",
-        "examples/driver.h"
+        "examples/simple-headers/driver.h"
       ]
     },
     {
@@ -27,7 +27,7 @@
         "-F dependencies/pycparser/utils/fake_libc_include",
         "--debug",
         "-c config.ini",
-        "examples/driver.h"
+        "examples/simple-headers/driver.h"
       ]
     }
   ]
