@@ -13,11 +13,11 @@ if __name__ == "__main__":
 
 
 def _get_type_name_struct(struct: Struct) -> str:
-    return CGenerator().visit_Struct(struct).replace('\n', '')
+    return CGenerator().visit_Struct(struct).replace("\n", "")
 
 
 def _get_type_name_union(union: Union) -> str:
-    return CGenerator().visit_Union(union).replace('\n', '')
+    return CGenerator().visit_Union(union).replace("\n", "")
 
 
 def _get_type_name_enum(enum: Enum) -> str:
@@ -29,12 +29,11 @@ def _get_type_name_identifiertype(identifiertype: IdentifierType) -> str:
 
 
 def _get_type_name_typedecl(typedecl: TypeDecl, omitConst: bool = False) -> str:
-    quals = list(filter(lambda q: not omitConst or q !=
-                        'const', typedecl.quals))
+    quals = list(filter(lambda q: not omitConst or q != "const", typedecl.quals))
     if len(quals) > 0:
-        quals = ' '.join(quals) + ' '
+        quals = " ".join(quals) + " "
     else:
-        quals = ''
+        quals = ""
     if isinstance(typedecl.type, IdentifierType):
         names = _get_type_name_identifiertype(typedecl.type)
     elif isinstance(typedecl.type, Struct):
@@ -45,29 +44,33 @@ def _get_type_name_typedecl(typedecl: TypeDecl, omitConst: bool = False) -> str:
         names = _get_type_name_enum(typedecl.type)
     else:
         raise ValueError(f"Unknown type {type(typedecl.type)}")
-    return f'{quals}{names}'
+    return f"{quals}{names}"
 
 
 def _get_type_name_ptrdecl(ptrdecl: PtrDecl, omitConst: bool = False) -> str:
     if is_function_pointer_type(ptrdecl):
         if ptrdecl.type.args is not None:
-            params = ', '.join(
-                [get_type_name(param, omitConst=False) for param in ptrdecl.type.args.params])
+            params = ", ".join(
+                [
+                    get_type_name(param, omitConst=False)
+                    for param in ptrdecl.type.args.params
+                ]
+            )
         else:
-            params = ''
-        return f'{_get_type_name_funcdecl(ptrdecl.type)} (*)({params})'
+            params = ""
+        return f"{_get_type_name_funcdecl(ptrdecl.type)} (*)({params})"
     else:
         if len(ptrdecl.quals) > 0 and not omitConst:
-            quals = ' ' + ' '.join(ptrdecl.quals)
+            quals = " " + " ".join(ptrdecl.quals)
         else:
-            quals = ''
+            quals = ""
         if isinstance(ptrdecl.type, PtrDecl):
             name = _get_type_name_ptrdecl(ptrdecl.type)
         elif isinstance(ptrdecl.type, TypeDecl):
             name = _get_type_name_typedecl(ptrdecl.type)
         else:
             raise ValueError(f"Unknown type {type(ptrdecl.type)}")
-        return f'{name}*{quals}'
+        return f"{name}*{quals}"
 
 
 def _get_type_name_funcdecl(funcDecl: FuncDecl) -> str:
@@ -86,7 +89,7 @@ def _get_type_name_arraydecl(arraydecl: ArrayDecl) -> str:
         name = _get_type_name_typedecl(arraydecl.type)
     else:
         raise ValueError(f"Unknown type {type(arraydecl.type)}")
-    return f'{name}*'
+    return f"{name}*"
 
 
 def get_type_name(decl: Decl, omitConst: bool = True) -> str:
