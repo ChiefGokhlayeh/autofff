@@ -57,7 +57,9 @@ class BareFakeGenerator(FakeGenerator):
             param.type.type.type.declname = name
             typedef = Typedef(name, param.quals, ["typedef"], param.type)
 
-            param.type = TypeDecl(param.name, param.type.quals, IdentifierType([name]))
+            param.type = TypeDecl(
+                param.name, param.type.quals, None, IdentifierType([name])
+            )
             typedefs += f"{self.cGen.visit_Typedef(typedef)};\n"
         return typedefs
 
