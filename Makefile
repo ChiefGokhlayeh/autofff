@@ -8,7 +8,7 @@ DEPENDENCIES_DIR = $(ROOT_DIR)/dependencies
 FFF_DIR ?= $(DEPENDENCIES_DIR)/fff
 
 # Build settings
-GTEST_OBJS ?= $(wildcard $(FFF_DIR)/build/gtest-*.o)
+GTEST_OBJS ?= $(FFF_DIR)/build/gtest/libgtest.a
 TEST_SOURCES = $(wildcard $(TEST_DIR)/*_unittest.cc)
 TEST_EXES = $(patsubst $(TEST_DIR)/%,$(OUTPUT_DIR)/%,$(TEST_SOURCES:%.cc=%.exe))
 TEST_INCLUDES = \
@@ -16,7 +16,7 @@ TEST_INCLUDES = \
 	-I$(EXAMPLES_DIR) \
 	-I$(OUTPUT_DIR) \
 	-I$(FFF_DIR) \
-	-I$(FFF_DIR)/gtest
+	-I$(FFF_DIR)/gtest/include/gtest
 TEST_HEADERS = $(wildcard $(EXAMPLES_DIR)/*.h)
 TEST_FAKES = $(patsubst $(EXAMPLES_DIR)/%,$(OUTPUT_DIR)/%,$(TEST_HEADERS:%.h=%_th.h))
 
@@ -26,6 +26,8 @@ AUTOFFF_CONFIG_FLAG =
 else
 AUTOFFF_CONFIG_FLAG = -c $(AUTOFFF_CONFIG)
 endif
+
+CMAKE?=cmake
 
 # Prevent make from deleting fakes as 'intermediate' files
 .PRECIOUS: $(TEST_FAKES)
@@ -39,11 +41,19 @@ install_autofff:
 	poetry install
 	@echo
 
+.PHONY: patch_fff
+patch_fff: unpatch_fff
+	git -C $(FFF_DIR) apply --reject ../fff.patch
+
 .PHONY: gtest_lib
-build_gtest_lib:
-	mkdir -p $(FFF_DIR)/build
-	$(MAKE) -C $(FFF_DIR)/gtest all
+build_gtest_lib: patch_fff
+	$(CMAKE) -B $(FFF_DIR)/build $(FFF_DIR)
+	$(CMAKE) --build $(FFF_DIR)/build --target gtest
 	@echo
+
+.PHONY: unpatch_fff
+unpatch_fff:
+	git -C $(FFF_DIR) checkout -f
 
 .PHONY: clean_autofff
 clean_autofff:
@@ -52,7 +62,7 @@ clean_autofff:
 
 .PHONY: clean_gtest
 clean_gtest:
-	$(MAKE) -C $(FFF_DIR)/gtest clean
+	$(RM) -rf $(FFF_DIR)/build
 	@echo
 
 .PHONY: clean_unittest
