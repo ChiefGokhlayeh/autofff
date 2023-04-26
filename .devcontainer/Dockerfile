@@ -7,6 +7,6 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-ARG POETRY_VERSION=1.1.11
+ARG POETRY_VERSION=1.4
 RUN pip3 install \
     "poetry==${POETRY_VERSION}"
