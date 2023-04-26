@@ -204,14 +204,14 @@ setuptools = "*"
 
 [[package]]
 name = "overrides"
-version = "6.5.0"
+version = "7.3.1"
 description = "A decorator to automatically detect mismatch when overriding a method."
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "overrides-6.5.0-py3-none-any.whl", hash = "sha256:005ce7cf550b4f896624ba08c386a1262699ec8b4e3a609375edafb0f0652589"},
-    {file = "overrides-6.5.0.tar.gz", hash = "sha256:2668159c39bc02e1fbd3cbd2cf7c51c1700cb4c35c1326b156dd07199d0ce159"},
+    {file = "overrides-7.3.1-py3-none-any.whl", hash = "sha256:6187d8710a935d09b0bcef8238301d6ee2569d2ac1ae0ec39a8c7924e27f58ca"},
+    {file = "overrides-7.3.1.tar.gz", hash = "sha256:8b97c6c1e1681b78cbc9424b138d880f0803c2254c5ebaabdde57bb6c62093f2"},
 ]
 
 [[package]]
@@ -454,4 +454,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.3)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "bce4d812f4e372da850bc3bff79de431663e7f9d341c2ba4462aab6b74d50d57"
+content-hash = "236b930c976259e1e90815cd46b2fcad9eb710a0f698e23fbbe2fea330deb65e"
