@@ -6,7 +6,6 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     clang-format-11 \
     cmake \
     curl \
-    git \
     ninja-build \
     && rm -rf /var/lib/apt/lists/*
 
