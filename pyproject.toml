@@ -25,7 +25,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.10"
 pycparser = "^2.21"
-overrides = "^6.5.0"
+overrides = ">=6.5,<8.0"
 configobj = "^5.0.8"
 validator = "^0.7.1"
 
