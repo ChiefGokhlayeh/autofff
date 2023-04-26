@@ -13,23 +13,26 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: C",
     "Programming Language :: C++",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.6",
     "Topic :: Software Development :: Code Generators",
     "Topic :: Software Development :: Testing",
 ]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 pycparser = "^2.21"
-overrides = "^6.1.0"
-configobj = "^5.0.6"
+overrides = "^6.5.0"
+configobj = "^5.0.8"
 validator = "^0.7.1"
 
 [tool.poetry.dev-dependencies]
-black = "^21.11b1"
-rope = "^0.22.0"
-flake8 = "^4.0.1"
-pre-commit = "^2.15.0"
+black = "^23.3.0"
+flake8 = "^6.0.0"
+pre-commit = "^2.21.0"
 
 [tool.poetry.scripts]
 autofff = "autofff.__main__:main"
