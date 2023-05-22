@@ -9,7 +9,9 @@ FFF_DIR ?= $(DEPENDENCIES_DIR)/fff
 FFF_PATCH_HINT = $(DEPENDENCIES_DIR)/fff/patched_by_autofff
 
 # Build settings
-GTEST_OBJS ?= $(FFF_DIR)/build/gtest/libgtest.a
+GTEST_OBJS ?= \
+	$(FFF_DIR)/build/lib/libgtest_main.a \
+	$(FFF_DIR)/build/lib/libgtest.a
 TEST_SOURCES = $(wildcard $(TEST_DIR)/*_unittest.cc)
 TEST_EXES = $(patsubst $(TEST_DIR)/%,$(OUTPUT_DIR)/%,$(TEST_SOURCES:%.cc=%.exe))
 TEST_INCLUDES = \
@@ -17,7 +19,8 @@ TEST_INCLUDES = \
 	-I$(EXAMPLES_DIR) \
 	-I$(OUTPUT_DIR) \
 	-I$(FFF_DIR) \
-	-I$(FFF_DIR)/gtest/include/gtest
+	-I$(FFF_DIR)/build/_deps/googletest-src/googletest/include \
+	-I$(FFF_DIR)/build/_deps/googletest-src/googletest/include/gtest
 TEST_HEADERS = $(wildcard $(EXAMPLES_DIR)/*.h)
 TEST_FAKES = $(patsubst $(EXAMPLES_DIR)/%,$(OUTPUT_DIR)/%,$(TEST_HEADERS:%.h=%_th.h))
 
@@ -49,8 +52,8 @@ $(FFF_PATCH_HINT):
 
 .PHONY: gtest_lib
 build_gtest_lib: patch_fff
-	$(CMAKE) -B $(FFF_DIR)/build $(FFF_DIR)
-	$(CMAKE) --build $(FFF_DIR)/build --target gtest
+	$(CMAKE) -B $(FFF_DIR)/build $(FFF_DIR) -DFFF_UNIT_TESTING=ON
+	$(CMAKE) --build $(FFF_DIR)/build
 	@echo
 
 .PHONY: unpatch_fff
