@@ -1,5 +1,6 @@
 # AutoFFF
 
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/ChiefGokhlayeh/autofff/master.svg)](https://results.pre-commit.ci/latest/github/ChiefGokhlayeh/autofff/master)
 [![build](https://github.com/ChiefGokhlayeh/autofff/actions/workflows/build.yml/badge.svg)](https://github.com/ChiefGokhlayeh/autofff/actions/workflows/build.yml)
 [![PyPI version](https://badge.fury.io/py/autofff.svg)](https://badge.fury.io/py/autofff)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -114,7 +115,7 @@ The format of the generated test-header obviously depends on the specifics of th
 
 ### In-Header Defined Functions
 
-In some API headers functions may be defined within the header. This will cause issues when trying to fake this function, because by including the header the function definition is copied into each translation unit. If we try to apply a fake definition the usual way, we will end up with a _"redefinition of function *x*"_ error.
+In some API headers functions may be defined within the header. This will cause issues when trying to fake this function, because by including the header the function definition is copied into each translation unit. If we try to apply a fake definition the usual way, we will end up with a _"redefinition of function **x**"_ error.
 
 _AutoFFF_ implements a workaround to avoid this redefinition error and allowing to fake the original function. This workaround simply consists of some defines which will re-route any call to the original in-header definition to our faked one. For this to work it is required that the test-header is included (and thereby pre-processed) _before_ any function call to the function under consideration is instructed, i.e. the test-header must be included _before_ the CuT. Any function call that is processed before the workaround is being pre-processed will leave this function call targeted towards the original in-header definition.
 
