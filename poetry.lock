@@ -189,13 +189,13 @@ setuptools = "*"
 
 [[package]]
 name = "overrides"
-version = "7.3.1"
+version = "7.4.0"
 description = "A decorator to automatically detect mismatch when overriding a method."
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "overrides-7.3.1-py3-none-any.whl", hash = "sha256:6187d8710a935d09b0bcef8238301d6ee2569d2ac1ae0ec39a8c7924e27f58ca"},
-    {file = "overrides-7.3.1.tar.gz", hash = "sha256:8b97c6c1e1681b78cbc9424b138d880f0803c2254c5ebaabdde57bb6c62093f2"},
+    {file = "overrides-7.4.0-py3-none-any.whl", hash = "sha256:3ad24583f86d6d7a49049695efe9933e67ba62f0c7625d53c59fa832ce4b8b7d"},
+    {file = "overrides-7.4.0.tar.gz", hash = "sha256:9502a3cca51f4fac40b5feca985b6703a5c1f6ad815588a7ca9e285b9dca6757"},
 ]
 
 [[package]]
