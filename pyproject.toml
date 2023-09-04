@@ -32,7 +32,7 @@ validator = "^0.7.1"
 [tool.poetry.dev-dependencies]
 black = "^23.7.0"
 flake8 = "^6.1.0"
-pre-commit = "^3.3.3"
+pre-commit = "^3.4.0"
 
 [tool.poetry.scripts]
 autofff = "autofff.__main__:main"
