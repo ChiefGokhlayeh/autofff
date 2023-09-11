@@ -13,7 +13,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository and submodules
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
               with:
                   submodules: recursive
             - name: Run tests
@@ -28,7 +28,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
             - name: Build distribution files
               uses: ./.devcontainer
               with:
