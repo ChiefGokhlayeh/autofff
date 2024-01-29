@@ -12,8 +12,8 @@
                 "-I examples",
                 "-F dependencies/pycparser/utils/fake_libc_include",
                 "--debug",
-                "examples/simple-headers/driver.h",
-            ],
+                "examples/simple-headers/driver.h"
+            ]
         },
         {
             "name": "Python - with config",
@@ -27,8 +27,8 @@
                 "-F dependencies/pycparser/utils/fake_libc_include",
                 "--debug",
                 "-c config.ini",
-                "examples/simple-headers/driver.h",
-            ],
-        },
-    ],
+                "examples/simple-headers/driver.h"
+            ]
+        }
+    ]
 }

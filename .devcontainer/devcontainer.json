@@ -5,8 +5,8 @@
         "context": "..",
         "args": {
             "VARIANT": "3.10",
-            "POETRY_VERSION": "1.4",
-        },
+            "POETRY_VERSION": "1.4"
+        }
     },
 
     "customizations": {
@@ -18,7 +18,7 @@
                 "python.linting.enabled": true,
                 "python.linting.flake8Enabled": true,
                 "python.linting.flake8Path": ".venv/bin/flake8",
-                "python.linting.pylintEnabled": false,
+                "python.linting.pylintEnabled": false
             },
 
             "extensions": [
@@ -29,12 +29,12 @@
                 "ms-python.vscode-pylance",
                 "ms-vscode.cmake-tools",
                 "ms-vscode.cpptools-extension-pack",
-                "njpwerner.autodocstring",
-            ],
-        },
+                "njpwerner.autodocstring"
+            ]
+        }
     },
 
     "postCreateCommand": "poetry install --no-root && poetry run pre-commit install",
 
-    "remoteUser": "vscode",
+    "remoteUser": "vscode"
 }

@@ -22,11 +22,6 @@ repos:
       rev: v4.0.0-alpha.8
       hooks:
           - id: prettier
-            args:
-                - --config-precedence=file-override
-            additional_dependencies:
-                - prettier@2.4.1
-                - prettier-plugin-toml@0.3.1
     - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
       rev: v0.1.0
       hooks:
