@@ -28,6 +28,7 @@ pycparser = "^2.21"
 overrides = ">=6.5,<8.0"
 configobj = "^5.0.8"
 validator = "^0.7.1"
+phmutest = "^0.0.3"
 
 [tool.poetry.dev-dependencies]
 black = "^24.2.0"

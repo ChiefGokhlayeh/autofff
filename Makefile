@@ -1,3 +1,18 @@
+.PHONY: \
+	all \
+	build_tests \
+	clean \
+	clean_autofff \
+	clean_gtest \
+	clean_unittest \
+	doctest \
+	gtest_lib \
+	install_autofff \
+	patch_fff \
+	run_tests \
+	uninstall_autofff \
+	unpatch_fff
+
 # Paths
 ROOT_DIR = $(CURDIR)
 AUTOFFF_DIR = $(ROOT_DIR)/autofff
@@ -37,11 +52,10 @@ CMAKE?=cmake
 .PRECIOUS: $(TEST_FAKES)
 
 all: install_autofff run_tests
-run_tests: build_tests
+run_tests: build_tests doctests
 build_tests: build_gtest_lib $(TEST_EXES)
 patch_fff: $(FFF_PATCH_HINT)
 
-.PHONY: install_autofff
 install_autofff:
 	poetry install
 	@echo
@@ -50,38 +64,31 @@ $(FFF_PATCH_HINT):
 	cd $(FFF_DIR) && patch -p1 < ../fff.patch
 	touch $(FFF_PATCH_HINT)
 
-.PHONY: gtest_lib
 build_gtest_lib: patch_fff
 	$(CMAKE) -B $(FFF_DIR)/build $(FFF_DIR) -DFFF_UNIT_TESTING=ON
 	$(CMAKE) --build $(FFF_DIR)/build
 	@echo
 
-.PHONY: unpatch_fff
 unpatch_fff:
 	cd $(FFF_DIR) && patch -R -p1 < ../fff.patch
 	$(RM) $(FFF_PATCH_HINT)
 
-.PHONY: clean_autofff
 clean_autofff:
 	$(RM) $(TEST_FAKES)
 	@echo
 
-.PHONY: clean_gtest
 clean_gtest:
 	$(RM) -rf $(FFF_DIR)/build
 	@echo
 
-.PHONY: clean_unittest
 clean_unittest:
 	$(RM) $(TEST_EXES)
 	@echo
 
-.PHONY: uninstall_autofff
 uninstall_autofff:
 	poetry run pip uninstall -y autofff
 	@echo
 
-.PHONY: clean
 clean: clean_autofff clean_gtest clean_unittest uninstall_autofff
 
 $(OUTPUT_DIR)/%.exe: $(TEST_DIR)/%.cc $(TEST_FAKES)
@@ -98,6 +105,9 @@ run_tests:
 		echo "Finished executing: $(exe)"; \
 		echo \
 	)
+
+doctests:
+	poetry run python -m phmutest README.md
 
 $(OUTPUT_DIR)/%_th.h: $(EXAMPLES_DIR)/%.h install_autofff
 	@echo "Generating test-header: $<"

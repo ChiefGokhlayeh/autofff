@@ -90,7 +90,7 @@ import autofff
 import os.path
 
 targetHeader = "examples/simple-headers/driver.h"
-outputHeader = "examples/simple-headers/driver_th.h"
+outputHeader = "output/driver_th.h"
 fakes = './autofff/dependencies/pycparser/utils/fake_libc_include'
 
 scnr = autofff.scanner.GCCScanner(targetHeader, fakes) # Create GCC code scanner
