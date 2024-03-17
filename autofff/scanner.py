@@ -53,7 +53,9 @@ class Scanner(metaclass=ABCMeta):
         self.includes = includes
         self.includeFiles = includeFiles
         self.defines = defines
-        if isinstance(ignorePattern, str):
+        if ignorePattern is None:
+            self.ignorePattern = re.compile("")
+        elif isinstance(ignorePattern, str):
             self.ignorePattern = re.compile(ignorePattern)
         else:
             self.ignorePattern = ignorePattern

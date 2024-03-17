@@ -1,7 +1,3 @@
-__all__ = [
-    "generator",
-    "scanner",
-    "utils",
-]
+from . import config, generator, scanner, utils
 
 __version__ = 0.4
