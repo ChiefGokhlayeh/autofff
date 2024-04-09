@@ -57,9 +57,7 @@ GCC_SCANNER_CPP_DEFINE_PREFIX = "cpp_define_prefix"
 GCC_SCANNER_CPP_DEFINE_PREFIX_DEF = "-D"
 
 GCC_SCANNER_NON_STANDARD_IGNORE_PATTERN = "non_standard_ignore_pattern"
-GCC_SCANNER_NON_STANDARD_IGNORE_PATTERN_DEF = (
-    r"([\s\n]*(\W(__asm|asm|__asm__)\W)[\s\n]*(volatile|[\s\n]*)(goto|[\s\n]*)(.|\n|;)*?;)"
-)
+GCC_SCANNER_NON_STANDARD_IGNORE_PATTERN_DEF = r"([\s\n]*(\W(__asm|asm|__asm__)\W)[\s\n]*(volatile|[\s\n]*)(goto|[\s\n]*)(.|\n|;)*?;)"
 
 GCC_SCANNER_ERROR_CONTEXT_PREV_LINES = "error_context_prev_lines"
 GCC_SCANNER_ERROR_CONTEXT_PREV_LINES_MIN = 0
