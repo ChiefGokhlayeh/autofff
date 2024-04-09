@@ -37,7 +37,7 @@ void Driver_PowerUp(Config (*config_cb)(void *arg));
 void Driver_PowerDown(void);
 
 /* Showcasing in-line function pointer parameters that return pointer */
-void Driver_Register_Callback(void* (*cb)(void *arg));
+void Driver_Register_Callback(void *(*cb)(void *arg));
 
 int Driver_Deinitialize(void);
 
