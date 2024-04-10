@@ -31,6 +31,8 @@ size_t Driver_Write(const uint8_t *buffer, const size_t size);
 /* Showcasing out-parameter pointers */
 void Driver_GrabBuffer(const uint8_t **buffer, size_t *size);
 
+uint16_t Driver_Hasmember(void);
+
 /* Showcasing in-line function pointer parameters */
 void Driver_PowerUp(Config (*config_cb)(void *arg));
 
