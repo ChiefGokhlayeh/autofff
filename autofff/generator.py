@@ -54,7 +54,10 @@ class BareFakeGenerator(FakeGenerator):
         ):
             name = utils.create_typedef_name_for_fnc_ptr(decl, param)
 
-            param.type.type.type.declname = name
+            type = param.type.type.type
+            while not hasattr(type, "declname"):
+                type = type.type
+            type.declname = name
             typedef = Typedef(name, param.quals, ["typedef"], param.type)
 
             param.type = TypeDecl(
