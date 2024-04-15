@@ -1,3 +1,3 @@
 from . import config, generator, scanner, utils
 
-__version__ = 0.4
+__version__ = 0.5

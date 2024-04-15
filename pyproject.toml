@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "autofff"
-version = "0.4"
+version = "0.5"
 description = "Auto-generate FFF fake definitions for C API header files"
 authors = ["Andreas Baulig <free.geronimo@hotmail.de>"]
 license = "MIT"
