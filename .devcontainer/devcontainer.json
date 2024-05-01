@@ -12,19 +12,16 @@
     "customizations": {
         "vscode": {
             "settings": {
-                "python.defaultInterpreterPath": ".venv/bin/python",
-                "python.formatting.blackPath": ".venv/bin/black",
-                "python.formatting.provider": "black",
-                "python.linting.enabled": true,
-                "python.linting.flake8Enabled": true,
-                "python.linting.flake8Path": ".venv/bin/flake8",
-                "python.linting.pylintEnabled": false
+                "python.defaultInterpreterPath": ".venv/bin/python"
             },
 
             "extensions": [
                 "bungcip.better-toml",
                 "davidanson.vscode-markdownlint",
                 "esbenp.prettier-vscode",
+                "ms-python.black-formatter",
+                "ms-python.flake8",
+                "ms-python.isort",
                 "ms-python.python",
                 "ms-python.vscode-pylance",
                 "ms-vscode.cmake-tools",
