@@ -221,17 +221,23 @@ files = [
 
 [[package]]
 name = "phmutest"
-version = "0.0.4"
-description = "Detect broken Python examples in Markdown."
+version = "0.1.0"
+description = "Detect and troubleshoot broken Python examples in Markdown."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "phmutest-0.0.4-py3-none-any.whl", hash = "sha256:c75c7cafe22eb04c67d23c11a222adf2e876583851a5ae2f23699f43a47c3127"},
-    {file = "phmutest-0.0.4.tar.gz", hash = "sha256:17880e17c319d5bc7ee00324656649ab85e8d25e77f674e859a9d92a17951af0"},
+    {file = "phmutest-0.1.0-py3-none-any.whl", hash = "sha256:737768a25d9ce6ed72087ebfe8f89c285db17a66cfc5a002038436b62fc26810"},
+    {file = "phmutest-0.1.0.tar.gz", hash = "sha256:3ca3842a9d2251ad13e5fa3959c9254410a09ad21a70982e836dfc3a37433077"},
 ]
 
 [package.dependencies]
 tomli = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
+
+[package.extras]
+color = ["colorama (>=0.4.4)", "colorama (>=0.4.6)", "pygments"]
+dev = ["black", "colorama (>=0.4.4)", "colorama (>=0.4.6)", "coverage", "flake8", "isort", "mkdocs", "mypy", "pep8-naming", "pygments", "pytest (>=6.2.5)", "pytest-subtests", "stackprinter"]
+pytest = ["pytest (>=6.2.5)", "pytest-subtests"]
+traceback = ["stackprinter"]
 
 [[package]]
 name = "platformdirs"
@@ -448,4 +454,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "9350d0de5252e7141f5469aadf0f0de67b30da827811a0f876f98c9d3580a3e7"
+content-hash = "1f06e690bb69aef947da8a7d8ce0f65bac4b790686f7216a0c874da49e149d8d"
