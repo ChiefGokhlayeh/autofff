@@ -221,13 +221,13 @@ files = [
 
 [[package]]
 name = "phmutest"
-version = "0.1.0"
+version = "1.0.0"
 description = "Detect and troubleshoot broken Python examples in Markdown."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "phmutest-0.1.0-py3-none-any.whl", hash = "sha256:737768a25d9ce6ed72087ebfe8f89c285db17a66cfc5a002038436b62fc26810"},
-    {file = "phmutest-0.1.0.tar.gz", hash = "sha256:3ca3842a9d2251ad13e5fa3959c9254410a09ad21a70982e836dfc3a37433077"},
+    {file = "phmutest-1.0.0-py3-none-any.whl", hash = "sha256:68f563f950da71fa5ae9709b1dd460bfe782c1490d75e4f6bcc405deb2f94bb2"},
+    {file = "phmutest-1.0.0.tar.gz", hash = "sha256:d8ab7eaadf80afc74c7254ca59e43e4ee98efe3bddb8676faab1fc875324a23b"},
 ]
 
 [package.dependencies]
@@ -454,4 +454,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "5634fa24aa487cd268acf32a067405ceae1929b5fc0570da20623475d09faee6"
+content-hash = "3a5f96304e019aadbd22c548bb032c71f54dc7a13d717be5a2b3e4097aeb3fba"
