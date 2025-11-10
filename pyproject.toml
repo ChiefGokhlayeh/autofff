@@ -33,7 +33,7 @@ phmutest = ">=0.0.3,<1.0.2"
 [tool.poetry.dev-dependencies]
 black = "^25.1.0"
 flake8 = "^7.3.0"
-pre-commit = "^4.3.0"
+pre-commit = "^4.4.0"
 
 [tool.poetry.scripts]
 autofff = "autofff.__main__:main"
