@@ -104,7 +104,6 @@ CONFIG.validate(VALIDATOR)  # Invoke validator once to get basic structure
 
 
 def load(filename: str):
-    global CONFIG, VALIDATOR
     CONFIG.filename = filename
     CONFIG.reload()
     CONFIG.validate(VALIDATOR)
