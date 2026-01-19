@@ -31,7 +31,7 @@ validator = "^0.7.1"
 phmutest = ">=0.0.3,<1.0.2"
 
 [tool.poetry.dev-dependencies]
-black = "^25.12.0"
+black = "^26.1.0"
 flake8 = "^7.3.0"
 pre-commit = "^4.5.1"
 
