@@ -1,4 +1,4 @@
-ARG VARIANT="3.10-bookworm"
+ARG VARIANT="3.10"
 FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
